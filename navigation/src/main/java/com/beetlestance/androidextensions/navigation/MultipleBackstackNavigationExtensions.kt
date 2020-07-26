@@ -42,8 +42,7 @@ fun BottomNavigationView.setupWithNavController(
 
     // First create a NavHostFragment for each NavGraph ID
     //
-    // The navGraphIds is reversed to prevent navController to be set to null.
-    // Should attach the first fragment at the last, so that navController is correctly set on
+    // Should attach the first selected fragment at the last, so that navController is correctly set on
     // [FragmentContainerView].
     // See the link below for the changes in Navigation library.
     // https://android.googlesource.com/platform/frameworks/support/+/523601f023afb95f861e94c149c50e4962ea42e3
