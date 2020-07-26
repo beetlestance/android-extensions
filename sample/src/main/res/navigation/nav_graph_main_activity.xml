@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_main_activity"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.beetlestance.sample.ui.splash.SplashFragment"
+        android:label="splash_fragment"
+        tools:layout="@layout/fragment_splash">
+
+        <action
+            android:id="@+id/to_dashboardFragment"
+            app:destination="@id/dashboardFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:popEnterAnim="@anim/fragment_close_enter"
+            app:popUpTo="@id/nav_graph_main_activity"
+            app:popUpToInclusive="true" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.beetlestance.sample.ui.dashboard.DashboardFragment"
+        android:label="dashboard_fragment"
+        tools:layout="@layout/fragment_dashboard">
+
+        <deepLink
+            android:id="@+id/dashboardDeeplink"
+            app:uri="beetlestance/extensions-sample-dashboard" />
+
+        <action
+            android:id="@+id/to_notificationsFragment"
+            app:destination="@id/notificationsFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:popEnterAnim="@anim/fragment_close_enter" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="com.beetlestance.sample.ui.notifications.NotificationsFragment"
+        android:label="notifications_fragment"
+        tools:layout="@layout/fragment_notifications">
+
+        <deepLink
+            android:id="@+id/notificationDeeplink"
+            app:uri="beetlestance/extensions-sample-notifications?input={input}" />
+
+        <argument
+            android:name="input"
+            android:defaultValue="null"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+</navigation>

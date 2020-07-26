@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_search"
+    app:startDestination="@id/searchFragment">
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.beetlestance.sample.ui.dashboard.search.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search" >
+
+        <deepLink
+            android:id="@+id/searchDeeplink"
+            app:uri="beetlestance/extensions-sample-search?input={input}" />
+        <argument
+            android:name="input"
+            app:argType="string"
+            android:defaultValue="null"
+            app:nullable="true" />
+
+    </fragment>
+</navigation>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_graph_home"
+        android:checked="true"
+        android:color="@color/color_on_background"
+        android:icon="@drawable/ic_home_24"
+        android:state_checked="true"
+        android:title="@string/bottom_navigation_home" />
+
+    <item
+        android:id="@+id/nav_graph_feed"
+        android:checked="false"
+        android:color="@color/color_on_background"
+        android:icon="@drawable/ic_rss_feed_24"
+        android:state_checked="false"
+        android:title="@string/bottom_navigation_feed" />
+    <item
+        android:id="@+id/nav_graph_search"
+        android:checked="false"
+        android:color="@color/color_on_background"
+        android:icon="@drawable/ic_search_24"
+        android:state_checked="false"
+        android:title="@string/bottom_navigation_search" />
+</menu>

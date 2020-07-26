@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="SampleApp.MainActivityTheme" parent="MyTheme.DayNight">
+        <item name="android:windowBackground">@color/color_background</item>
+    </style>
+
+    <style name="SampleApp.SplashTheme" parent="MyTheme.DayNight">
+        <item name="android:windowBackground">@color/color_primary</item>
+    </style>
+
+</resources>

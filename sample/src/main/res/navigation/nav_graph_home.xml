@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_home"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.beetlestance.sample.ui.dashboard.home.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home">
+
+        <deepLink
+            android:id="@+id/homeDeeplink"
+            app:uri="beetlestance/extensions-sample-home?input={input}" />
+
+        <argument
+            android:name="input"
+            app:argType="string"
+            android:defaultValue="null"
+            app:nullable="true" />
+
+    </fragment>
+</navigation>

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">SampleApplication</string>
+    <string name="bottom_navigation_home">Home</string>
+    <string name="bottom_navigation_feed">Feed</string>
+    <string name="bottom_navigation_search">Search</string>
+    <string name="dashboard_menu_notification">Notification</string>
+</resources>

@@ -1,0 +1,3 @@
+rootProject.name = "Android Extensions"
+include ':navigation'
+include ':sample'
