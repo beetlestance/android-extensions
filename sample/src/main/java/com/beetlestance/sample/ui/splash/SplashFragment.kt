@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.beetlestance.beetleextensions.navigation_extensions.navigateOnce
+import com.beetlestance.androidextensions.navigation.navigateOnce
 import com.beetlestance.sample.databinding.FragmentSplashBinding
 import dagger.hilt.android.AndroidEntryPoint
 

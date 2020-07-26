@@ -6,7 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.findNavController
-import com.beetlestance.beetleextensions.navigation_extensions.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.NavigateOnceDeeplinkRequest
 import com.beetlestance.sample.event.Event
 import com.beetlestance.sample.ui.dashboard.DashboardFragment
 import dagger.hilt.android.AndroidEntryPoint

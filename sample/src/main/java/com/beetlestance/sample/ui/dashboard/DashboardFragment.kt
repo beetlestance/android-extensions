@@ -8,12 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
-import com.beetlestance.beetleextensions.navigation_extensions.NavigateOnceDeeplinkRequest
-import com.beetlestance.beetleextensions.navigation_extensions.navigateDeeplink
-import com.beetlestance.beetleextensions.navigation_extensions.navigateOnce
-import com.beetlestance.beetleextensions.navigation_extensions.setupWithNavController
+import com.beetlestance.androidextensions.navigation.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.navigateDeeplink
+import com.beetlestance.androidextensions.navigation.navigateOnce
+import com.beetlestance.androidextensions.navigation.setupWithNavController
 import com.beetlestance.sample.R
 import com.beetlestance.sample.databinding.FragmentDashboardBinding
 import com.beetlestance.sample.event.observeEvent

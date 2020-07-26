@@ -1,8 +1,7 @@
 package com.beetlestance.sample
 
-import android.net.Uri
 import androidx.lifecycle.MutableLiveData
-import com.beetlestance.beetleextensions.navigation_extensions.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.NavigateOnceDeeplinkRequest
 import com.beetlestance.sample.event.Event
 import com.beetlestance.sample.ui.dashboard.DashboardFragment
 import com.beetlestance.sample.ui.notifications.NotificationsFragment

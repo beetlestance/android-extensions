@@ -1,4 +1,4 @@
-package com.beetlestance.beetleextensions.navigation_extensions
+package com.beetlestance.androidextensions.navigation
 
 import android.util.SparseArray
 import androidx.core.util.forEach
@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.beetlestance.beetleextensions.navigation.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**

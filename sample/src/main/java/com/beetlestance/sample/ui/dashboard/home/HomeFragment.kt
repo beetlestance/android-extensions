@@ -8,7 +8,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import com.beetlestance.beetleextensions.navigation_extensions.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.NavigateOnceDeeplinkRequest
 import com.beetlestance.sample.constants.FEED_DEEPLINK
 import com.beetlestance.sample.constants.NOTIFICATION_DEEPLINK
 import com.beetlestance.sample.constants.SEARCH_DEEPLINK

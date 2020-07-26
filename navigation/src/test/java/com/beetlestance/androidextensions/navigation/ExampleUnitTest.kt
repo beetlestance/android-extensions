@@ -1,4 +1,4 @@
-package com.beetlestance.beetleextensions.navigation
+package com.beetlestance.androidextensions.navigation
 
 import org.junit.Test
 

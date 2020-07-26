@@ -1,4 +1,4 @@
-package com.beetlestance.beetleextensions.navigation_extensions
+package com.beetlestance.androidextensions.navigation
 
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.FragmentNavigator

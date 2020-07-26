@@ -2,7 +2,7 @@ package com.beetlestance.sample.ui.splash
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
-import com.beetlestance.beetleextensions.navigation_extensions.NavigateOnceDirectionRequest
+import com.beetlestance.androidextensions.navigation.NavigateOnceDirectionRequest
 
 class SplashViewModel @ViewModelInject constructor() : ViewModel() {
 
