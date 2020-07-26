@@ -12,9 +12,17 @@ import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
- * Manages the various graphs needed for a [BottomNavigationView].
+ * Ported from: https://github.com/android/architecture-components-samples/blob/master/NavigationAdvancedSample
  *
+ * Manages the various graphs needed for a [BottomNavigationView].
  * This sample is a workaround until the Navigation Component supports multiple back stacks.
+ *
+ * @param navGraphIds the graph ids to setup with [BottomNavigationView]. [navGraphIds] should
+ * be in the exact order in which the [BottomNavigationView] menu is displayed.
+ * @param fragmentManager The [FragmentManager] which will be used to attach [NavHostFragment]
+ * @param containerId The container in which [NavHostFragment] will attach to.
+ * @param request The way in which the destination should be loaded. See [NavigateOnceDeeplinkRequest]
+ * for more information on what options are available.
  */
 fun BottomNavigationView.setupWithNavController(
     navGraphIds: List<Int>,
@@ -25,14 +33,19 @@ fun BottomNavigationView.setupWithNavController(
 
     // Map of tags
     val graphIdToTagMap = SparseArray<String>()
+
     // Result. Mutable live data with the selected controlled
     val selectedNavController = MutableLiveData<NavController>()
 
-    var firstFragmentGraphId = 0
+    // First fragment graph index in the provided list
+    var firstFragmentGraphId = navGraphIds.lastIndex
 
     // First create a NavHostFragment for each NavGraph ID
-
-    // kamesh
+    //
+    // The navGraphIds is reversed to prevent navController to be set to null.
+    // Should attach the first fragment at the last, so that navController is correctly set on
+    // [FragmentContainerView].
+    // See the link below for the changes in Navigation library.
     // https://android.googlesource.com/platform/frameworks/support/+/523601f023afb95f861e94c149c50e4962ea42e3
     navGraphIds.reversed().forEachIndexed { index, navGraphId ->
         val fragmentTag: String = getFragmentTag(index)
@@ -249,6 +262,7 @@ fun BottomNavigationView.navigateDeeplink(
                 navGraphId,
                 containerId
             )
+
         // Handle deeplink
         val canHandleDeeplink = navHostFragment.navController.graph.hasDeepLink(request.deeplink)
 

@@ -1,35 +1,33 @@
 package com.beetlestance.androidextensions.navigation
 
-import android.net.Uri
-import androidx.navigation.*
-import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.NavAction
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.NavOptions
 
 /**
- * Check current destination has action to navigate or if already navigated update arguments
- * @param navigationRequest [NavigateOnceDeeplinkRequest]
- * [navigationRequest.deeplink] [Uri] for destination
- * [navigationRequest.allowMultipleInstance] [Boolean] if false destination will open times
- * if true only existing will be removed from backStack
- * [navigationRequest.updateArguments] [Boolean] by default set to true, set false if destination doesn't require
- * argument update. If false same instance from backStack will be used
+ * The extension for [NavController] which uses provide [NavigateOnceDeeplinkRequest] to navigate
+ * to a destination with given request parameters.
  */
 fun NavController.navigateOnce(navigationRequest: NavigateOnceDeeplinkRequest) {
-    // Find deeplink mapped nav Id and compare with currentDestination nav Id
+    // Check if the destination we want to open is already on the top of the backstack
     val alreadyNavigated: Boolean =
         currentDestination?.hasDeepLink(navigationRequest.deeplink) == true
 
     when {
+        // navigate to destination create new instance if already in backstack
         navigationRequest.allowMultipleInstance -> {
-            // navigate to destination create new instance if already in backstack
             navigate(navigationRequest.deeplink)
         }
+
+        // if already navigated, do nothing
         alreadyNavigated && navigationRequest.updateArguments.not() -> {
-            // if already navigated, do nothing
             return
         }
+
+        // Remove Current fragment instance of destination
+        // and navigate to update arguments
         alreadyNavigated && navigationRequest.allowMultipleInstance.not() -> {
-            // Remove Current fragment instance of destination
-            // and navigate to update arguments
             currentDestination?.let {
                 val navOptions =
                     createNavOptions(
@@ -40,44 +38,40 @@ fun NavController.navigateOnce(navigationRequest: NavigateOnceDeeplinkRequest) {
                 navigate(navigationRequest.deeplink, navOptions)
             }
         }
+
+        // navigate to new destinations
         else -> {
-            // navigate to new destinations
             navigate(navigationRequest.deeplink)
         }
     }
 }
 
 /**
- * Check current destination has action to navigate or if already navigated update arguments
- * @param navigationRequest [NavigateOnceDirectionRequest]
- * [navigationRequest.directions] [NavDirections] for destination
- * [navigationRequest.navigatorExtras] [FragmentNavigator.Extras] passed to FragmentNavigator to enable Fragment specific behavior
- * such as shared transitions for destination
- * [navigationRequest.allowMultipleInstance] [Boolean] if false destination will open times
- * if true only existing will be removed from backStack
- * [navigationRequest.updateArguments] [Boolean] by default set to true, set false if destination doesn't require
- * argument update. If false same instance from backStack will be used
+ * The extension for [NavController] which uses provide [NavigateOnceDirectionRequest] to navigate
+ * to a destination with given request parameters.
  */
 fun NavController.navigateOnce(navigationRequest: NavigateOnceDirectionRequest) {
     // Check if navController has action for direction and return if no action found
     val navigationAction =
         currentDestination?.getAction(navigationRequest.directions.actionId) ?: return
 
-    // compare directionsDestination nav Id with currentDestination nav Id
+    // check if destination is already on the top of backstack
     val alreadyNavigated = navigationAction.destinationId == currentDestination?.id
 
     when {
+        // navigate to destination create new instance if already in top of backstack
         navigationRequest.allowMultipleInstance -> {
-            // navigate to destination create new instance if already in backstack
             internalNavigateOnce(navigationRequest)
         }
+
+        // if already navigated and arguments should not be updated, do nothing
         alreadyNavigated && navigationRequest.updateArguments.not() -> {
-            // if already navigated, do nothing
             return
         }
+
+        // Remove Current fragment instance of destination
+        // and navigate to update arguments
         alreadyNavigated && navigationRequest.allowMultipleInstance.not() -> {
-            // Remove Current fragment instance of destination
-            // and navigate to update arguments
             currentDestination?.let {
                 val navOptions = it.createNavOptionsFor(navigationAction)
                 navigate(
@@ -88,8 +82,9 @@ fun NavController.navigateOnce(navigationRequest: NavigateOnceDirectionRequest) 
                 )
             }
         }
+
+        // check extras and navigate to destination
         else -> {
-            // check extras and navigate to destination
             navigate(navigationRequest.directions)
         }
     }
@@ -97,12 +92,13 @@ fun NavController.navigateOnce(navigationRequest: NavigateOnceDirectionRequest) 
 
 private fun NavController.internalNavigateOnce(navigationRequest: NavigateOnceDirectionRequest) {
     when {
+        // navigate to destination with extras
         navigationRequest.navigatorExtras != null -> {
-            // navigate to destination with extras
             navigateOnceWithExtras(navigationRequest)
         }
+
+        // navigate to destination
         else -> {
-            // navigate to destination
             navigate(navigationRequest.directions)
         }
     }
