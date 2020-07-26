@@ -5,7 +5,8 @@ The extensions are build upon the [Advanced Navigation Sample](https://github.co
 
 ### What problems are solved?
 * Application will not restart on opening via deeplink.
-* Logic for splash and login will be handled before opening deelink.
+* Logic for splash and login will be handled before opening deeplink.
+* There are options to open a destination only once for both directions and uri. User will only navigate to a destination only once.
 
 
 Most of the application needs to show a splash screen before navigating to their main screen. For this to work we have to create a fragment container which will hold all the bottom navigation fragments. This fragment container will on same level as of splash screen.
@@ -111,8 +112,26 @@ viewModel.clearBackStack.observeEvent(viewLifecycleOwner) {
         }
 ```
 
+### Extensions for navigation
+1. ``` fun NavController.navigateOnce(navigationRequest: NavigateOnceDeeplinkRequest) ```
+
+    takes a deeplink request and perfrom navigation based on    arguments. The arguments can specify allowMultipleInstances and should update arguments or not.
+    
+    [NavigateOnceDeeplinkRequest](https://github.com/beetlestance/android-extensions/blob/main/navigation/src/main/java/com/beetlestance/androidextensions/navigation/NavigateOnceDeeplinkRequest.kt)
+
+2. ```fun NavController.navigateOnce(navigationRequest: NavigateOnceDirectionRequest) ```
+
+    takes a direction request and perfrom navigation based on    arguments. The arguments can specify allowMultipleInstances and should update arguments or not.
+    
+    [NavigateOnceDirectionRequest](https://github.com/beetlestance/android-extensions/blob/main/navigation/src/main/java/com/beetlestance/androidextensions/navigation/NavigateOnceDirectionRequest.kt) 
+
 ### Download
 
 
-
+### What is the goal and future expectations?
+The goal is to provide seemless navigation with all the available methods like Deeplink, Notifications, App links and simple destinations. 
+Future Expectations:
+1. Will showcase how FCM notifications can be handled via deeplnks and the above extensions
+2. Provide youtube like backstack for bottom navigation
+3. Handle App links via navigation components.
 
