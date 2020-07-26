@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/feedFragment"
-        android:name="com.beetlestance.sample.ui.dashboard.feed.FeedFragment"
+        android:name="com.beetlestance.androidextensions.sample.ui.dashboard.feed.FeedFragment"
         android:label="fragment_feed"
         tools:layout="@layout/fragment_feed">
 

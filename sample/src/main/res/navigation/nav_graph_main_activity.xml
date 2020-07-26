@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.beetlestance.sample.ui.splash.SplashFragment"
+        android:name="com.beetlestance.androidextensions.sample.ui.splash.SplashFragment"
         android:label="splash_fragment"
         tools:layout="@layout/fragment_splash">
 
@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/dashboardFragment"
-        android:name="com.beetlestance.sample.ui.dashboard.DashboardFragment"
+        android:name="com.beetlestance.androidextensions.sample.ui.dashboard.DashboardFragment"
         android:label="dashboard_fragment"
         tools:layout="@layout/fragment_dashboard">
 
@@ -41,7 +41,7 @@
 
     <fragment
         android:id="@+id/notificationsFragment"
-        android:name="com.beetlestance.sample.ui.notifications.NotificationsFragment"
+        android:name="com.beetlestance.androidextensions.sample.ui.notifications.NotificationsFragment"
         android:label="notifications_fragment"
         tools:layout="@layout/fragment_notifications">
 
