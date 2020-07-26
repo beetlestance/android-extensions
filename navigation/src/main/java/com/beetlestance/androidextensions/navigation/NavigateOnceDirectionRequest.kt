@@ -9,8 +9,9 @@ data class NavigateOnceDirectionRequest(
     // Extras that can be passed to FragmentNavigator to enable Fragment specific behavior
     // such as shared transitions for destination
     val navigatorExtras: FragmentNavigator.Extras? = null,
-    // If set to false and currentDestination has deeplink, backStackEntry will be used
-    // else set to true each time it will create new instance
+    // Defines the behavior of multiple continuous instances to be allowed or not for a destination.
+    // true: allows continuous instances of a same fragment.
+    // false: do not allow continuous instances of same fragment.
     val allowMultipleInstance: Boolean = false,
     //  if set to true fragment will be popped from backStack and navigate
     // else set to false backStackEntry will be used with old arguments if any
