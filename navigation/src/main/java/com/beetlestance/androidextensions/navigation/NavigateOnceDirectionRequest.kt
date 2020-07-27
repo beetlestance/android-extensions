@@ -8,7 +8,7 @@ data class NavigateOnceDirectionRequest(
     // directions for navigation
     val directions: NavDirections,
     // NavOptions stores special options for navigate actions
-    val navOptions: NavOptions?,
+    val navOptions: NavOptions? = null,
     // Extras that can be passed to FragmentNavigator to enable Fragment specific behavior
     // such as shared transitions for destination
     val navigatorExtras: FragmentNavigator.Extras? = null,
