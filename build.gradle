@@ -8,12 +8,14 @@ buildscript {
         google()
         jcenter()
     }
+
     dependencies {
         classpath "com.android.tools.build:gradle:4.2.0-alpha05"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath("com.google.dagger:hilt-android-gradle-plugin:2.28-alpha")
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.3.0"
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.12.0'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -29,4 +31,27 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+subprojects {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+    }
+
+    // Read in the signing.properties file if it is exists
+    def signingPropsFile = rootProject.file('release/signing.properties')
+    if (signingPropsFile.exists()) {
+        def localProperties = new Properties()
+        signingPropsFile.withInputStream { is -> localProperties.load(is) }
+        localProperties.each { prop ->
+            if (prop.key == "signing.secretKeyRingFile") {
+                // If this is the key ring, treat it as a relative path
+                project.ext.set(prop.key, rootProject.file(prop.value).absolutePath)
+            } else {
+                project.ext.set(prop.key, prop.value)
+            }
+        }
+    }
 }
