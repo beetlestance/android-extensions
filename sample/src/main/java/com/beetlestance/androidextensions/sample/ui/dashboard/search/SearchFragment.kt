@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.beetlestance.androidextensions.sample.databinding.FragmentSearchBinding
-import com.beetlestance.sample.ui.dashboard.search.SearchFragmentArgs
 
 class SearchFragment : Fragment() {
 

@@ -14,7 +14,6 @@ import com.beetlestance.androidextensions.sample.constants.NOTIFICATION_DEEPLINK
 import com.beetlestance.androidextensions.sample.constants.SEARCH_DEEPLINK
 import com.beetlestance.androidextensions.sample.databinding.FragmentHomeBinding
 import com.beetlestance.androidextensions.sample.event.Event
-import com.beetlestance.sample.ui.dashboard.home.HomeFragmentArgs
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

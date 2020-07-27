@@ -17,7 +17,6 @@ import com.beetlestance.androidextensions.sample.constants.SEARCH_DEEPLINK
 import com.beetlestance.androidextensions.sample.databinding.FragmentNotificationsBinding
 import com.beetlestance.androidextensions.sample.event.Event
 import com.beetlestance.androidextensions.sample.event.observeEvent
-import com.beetlestance.sample.ui.notifications.NotificationsFragmentArgs
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

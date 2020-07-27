@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.beetlestance.androidextensions.sample.databinding.FragmentFeedBinding
-import com.beetlestance.sample.ui.dashboard.feed.FeedFragmentArgs
 
 class FeedFragment : Fragment() {
 
