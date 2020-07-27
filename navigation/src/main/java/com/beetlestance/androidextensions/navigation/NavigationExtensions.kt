@@ -73,7 +73,8 @@ fun NavController.navigateOnce(navigationRequest: NavigateOnceDirectionRequest) 
         // and navigate to update arguments
         alreadyNavigated && navigationRequest.allowMultipleInstance.not() -> {
             currentDestination?.let {
-                val navOptions = it.createNavOptionsFor(navigationAction)
+                val navOptions =
+                    it.createNavOptionsFor(navigationAction, navigationRequest.navOptions)
                 navigate(
                     navigationRequest.directions.actionId,
                     navigationRequest.directions.arguments,
@@ -108,12 +109,16 @@ private fun NavController.navigateOnceWithExtras(navigationRequest: NavigateOnce
     navigate(navigationRequest.directions, requireNotNull(navigationRequest.navigatorExtras))
 }
 
-private fun NavDestination.createNavOptionsFor(action: NavAction): NavOptions {
+private fun NavDestination.createNavOptionsFor(
+    action: NavAction,
+    navOptions: NavOptions?
+): NavOptions {
     // check if action has defaultNavOptions
-    val defaultNavOptions: NavOptions? = action.navOptions
+    val defaultNavOptions: NavOptions? = navOptions ?: action.navOptions
     // popTo destinationId if no defaultNavOptions
-    val popUpTo: Int = defaultNavOptions?.popUpTo ?: id
-    //  set isPopUpToInclusive true if no defaultNavOptions
+    val popUpTo: Int = if (defaultNavOptions?.popUpTo == null || defaultNavOptions.popUpTo == -1) id
+    else defaultNavOptions.popUpTo
+
     val isPopUpToInclusive = defaultNavOptions?.isPopUpToInclusive ?: true
 
     return createNavOptions(
