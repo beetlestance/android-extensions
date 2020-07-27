@@ -39,8 +39,8 @@ fun pendingIntentForAction(
 /*
 * provide valid Deeplink for given action
 * */
-private fun notificationDeeplink(action: String?): Uri? {
-    val deeplink: String = actionsDestination[action ?: return null] ?: return null
+private fun notificationDeeplink(action: String): Uri? {
+    val deeplink: String = actionsDestination[action] ?: return null
     val args = deeplinkArgs(action)
     return Uri.parse(deeplink + args)
 }
