@@ -9,8 +9,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigation
-import com.beetlestance.androidextensions.navigation.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.navigateOnce
 import com.beetlestance.androidextensions.navigation.navigator.DeeplinkNavigator
 import com.beetlestance.androidextensions.navigation.setupWithNavController
@@ -63,13 +61,10 @@ class DashboardFragment : Fragment() {
      * Called on first creation and when restoring state.
      */
     private fun setupBottomNavigationBar() {
-        DeeplinkNavigation.setEssentialComponents(
-            navGraphIds = NAV_GRAPH_IDS,
-            containerId = R.id.nav_host_fragment_dashboard
-        )
-
         // Setup the bottom navigation view with a list of navigation graphs
         requireBinding().dashboardFragmentBottomNavigation.setupWithNavController(
+            navGraphIds = NAV_GRAPH_IDS,
+            containerId = requireBinding().navHostFragmentDashboard.id,
             fragmentManager = childFragmentManager
         ).observe(viewLifecycleOwner) { navController ->
             currentNavController = navController

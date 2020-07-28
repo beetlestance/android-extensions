@@ -29,13 +29,19 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  * for more information on what options are available.
  */
 fun BottomNavigationView.setupWithNavController(
-    fragmentManager: FragmentManager
+    navGraphIds: List<Int>,
+    fragmentManager: FragmentManager,
+    containerId: Int,
+    customBottomNavigationAnimation: NavAnimations = NavAnimations()
 ): LiveData<NavController> {
 
-    val navGraphIds = DeeplinkNavigation.navGraphIds
-    val containerId = DeeplinkNavigation.containerId ?: throw IllegalArgumentException(
-        "Please make sure you have setup container id with DeeplinkNavigationBuilder"
+    // setup these components for late use in navigation
+    DeeplinkNavigation.setComponents(
+        navGraphIds = navGraphIds,
+        containerId = containerId,
+        navAnimations = customBottomNavigationAnimation
     )
+
     // Map of tags
     val graphIdToTagMap = SparseArray<String>()
 
@@ -256,19 +262,15 @@ fun BottomNavigationView.navigateDeeplink(
             "Please make sure you have setup container id with DeeplinkNavigationBuilder"
         )
     navGraphIds.forEachIndexed { index, navGraphId ->
-        val fragmentTag =
-            getFragmentTag(
-                index
-            )
+        val fragmentTag = getFragmentTag(index)
 
         // Find or create the Navigation host fragment
-        val navHostFragment =
-            obtainNavHostFragment(
-                fragmentManager,
-                fragmentTag,
-                navGraphId,
-                containerId
-            )
+        val navHostFragment = obtainNavHostFragment(
+            fragmentManager,
+            fragmentTag,
+            navGraphId,
+            containerId
+        )
 
         // Handle deeplink
         val canHandleDeeplink = navHostFragment.navController.graph.hasDeepLink(request.deeplink)
