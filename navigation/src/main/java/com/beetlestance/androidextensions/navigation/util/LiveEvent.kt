@@ -79,8 +79,7 @@ internal class LiveEvent<T> : MediatorLiveData<T>() {
 }
 
 fun <T> LiveData<T>.toSingleEvent(): LiveData<T> {
-    val result =
-        LiveEvent<T>()
+    val result = LiveEvent<T>()
     result.addSource(this) {
         result.value = it
     }

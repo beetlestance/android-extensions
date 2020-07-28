@@ -42,6 +42,18 @@ fun AppCompatActivity.handleDeeplink(
     }
 }
 
+fun AppCompatActivity.handleMultiFragmentBackStack(
+    navHostFragmentId: Int,
+    primaryFragmentId: Int,
+    avoidNavigationForFragmentIds: List<Int> = emptyList()
+) {
+    lifecycleScope.launchWhenStarted {
+        DeeplinkNavigator.getTopLevelNavigator().popToPrimaryFragment.observe(this@handleMultiFragmentBackStack) {
+            findNavController(navHostFragmentId).popBackStack(primaryFragmentId, false)
+        }
+    }
+}
+
 fun AppCompatActivity.handleDeeplinkIntent(
     navHostFragmentId: Int,
     validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,

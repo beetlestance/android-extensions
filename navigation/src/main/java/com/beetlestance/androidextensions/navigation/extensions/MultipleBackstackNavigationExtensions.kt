@@ -44,7 +44,7 @@ fun Fragment.setupMultipleBackStackBottomNavigation(
 
     val deeplinkNavigator = DeeplinkNavigator.getTopLevelNavigator()
 
-    deeplinkNavigator.primaryFragmentId = findNavController().currentDestination?.id
+    deeplinkNavigator.onDestinationChangeListener(findNavController())
 
     return setupMultipleBackStackBottomNavigation(bottomNavigationView, childFragmentManager)
 }

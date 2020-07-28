@@ -1,11 +1,9 @@
 package com.beetlestance.androidextensions.navigation
 
 import android.content.Intent
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.extensions.navigateDeeplink
 import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
@@ -17,7 +15,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  */
 open class DeeplinkNavigator {
 
-    internal var primaryFragmentId: Int? = null
+    private var isDestinationChangedListenerAttached: Boolean = false
 
     internal var isBottomNavigationAttachedToActivity: Boolean = false
 
@@ -29,26 +27,18 @@ open class DeeplinkNavigator {
             }
         }
 
+    internal var resetStackBeforeNavigation: Boolean = false
+
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     internal val navigateRequest = navigatorDeeplink.toSingleEvent()
 
-    private val clearBackStack: MutableLiveData<Boolean> = MutableLiveData(false)
-    val resetStackBeforeNavigation = clearBackStack.toSingleEvent()
 
-    /**
-     * check if current fragment is DashboardFragment
-     */
-    fun Fragment.isDashboardFragment(): Boolean {
-        val navController = findNavController()
-        return navController.currentDestination?.id == primaryFragmentId
-    }
+    private val clearBackStack: MutableLiveData<Boolean> = MutableLiveData(false)
+    val popToPrimaryFragment = clearBackStack.toSingleEvent()
 
     fun navigateToTopLevelDestination(request: NavigateOnceDeeplinkRequest) {
+        clearBackStack.postValue(resetStackBeforeNavigation)
         navigatorDeeplink.postValue(request)
-    }
-
-    fun clearBackStack(shouldClear: Boolean) {
-        clearBackStack.postValue(shouldClear)
     }
 
     internal fun handleDeeplink(
@@ -103,6 +93,18 @@ open class DeeplinkNavigator {
         }
         handleIntent(intent)
         intent?.data = null
+    }
+
+    @Synchronized
+    internal fun onDestinationChangeListener(navController: NavController) {
+        if (isDestinationChangedListenerAttached) return
+        else isDestinationChangedListenerAttached = true
+
+        val primaryFragmentId = requireNotNull(navController.currentDestination?.id)
+
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            resetStackBeforeNavigation = destination.id == primaryFragmentId
+        }
     }
 
     companion object {
