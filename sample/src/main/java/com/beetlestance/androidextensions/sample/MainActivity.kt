@@ -5,27 +5,20 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import androidx.navigation.findNavController
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
+import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
+import com.beetlestance.androidextensions.navigation.extensions.handleOnNewDeeplinkIntent
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
-    @Inject
-    lateinit var deeplinkNavigator: DeeplinkNavigator
-
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.SampleApp_MainActivityTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        deeplinkNavigator.handleDeeplinkIntent(
-            intent = intent,
-            intentUpdated = false
-        )
+        handleDeeplinkIntent(R.id.nav_host_fragment_container)
     }
 
     /**
@@ -35,12 +28,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        findNavController(R.id.nav_host_fragment_container).popBackStack()
-        deeplinkNavigator.handleDeeplinkIntent(
-            intent = intent,
-            intentUpdated = true,
-            shouldClearBackStack = false
-        )
+        handleOnNewDeeplinkIntent(intent, R.id.nav_host_fragment_container)
     }
 
 }

@@ -19,24 +19,24 @@ open class DeeplinkNavigator {
 
     internal var primaryFragmentId: Int? = null
 
-    private var intentUpdated: Boolean = false
+    private var hasSetGraphHandledDeeplink: Boolean = false
         get() {
-            val mIntentUpdated = field
-            return mIntentUpdated.also {
-                intentUpdated = false
+            val mHasSetGraphHandledDeeplink = field
+            return mHasSetGraphHandledDeeplink.also {
+                hasSetGraphHandledDeeplink = false
             }
         }
 
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
-    val observerForTopLevelNavigation = navigatorDeeplink.toSingleEvent()
+    internal val navigateRequest = navigatorDeeplink.toSingleEvent()
 
     private val clearBackStack: MutableLiveData<Boolean> = MutableLiveData(false)
-    val observeForClearBackStack = clearBackStack.toSingleEvent()
+    val resetStackBeforeNavigation = clearBackStack.toSingleEvent()
 
     /**
      * check if current fragment is DashboardFragment
      */
-    private fun Fragment.isDashboardFragment(): Boolean {
+    fun Fragment.isDashboardFragment(): Boolean {
         val navController = findNavController()
         return navController.currentDestination?.id == primaryFragmentId
     }
@@ -55,36 +55,26 @@ open class DeeplinkNavigator {
         fragmentManager: FragmentManager,
         request: NavigateOnceDeeplinkRequest
     ) {
-        val isTopLevelDestination = navController.graph.hasDeepLink(request.deeplink)
-        if (isTopLevelDestination && intentUpdated) {
-            navController.navigateOnce(request)
-        } else {
-            bottomNavigationView.navigateDeeplink(
-                request = request,
-                fragmentManager = fragmentManager
-            )
+        val isParentWorthyEnough = navController.graph.hasDeepLink(request.deeplink)
+        when {
+            isParentWorthyEnough && hasSetGraphHandledDeeplink.not() -> {
+                navController.navigateOnce(request)
+            }
+            isParentWorthyEnough.not() -> {
+                bottomNavigationView.navigateDeeplink(
+                    request = request,
+                    fragmentManager = fragmentManager
+                )
+            }
         }
     }
 
-    fun handleDeeplinkIntent(
+    internal fun handleDeeplinkIntent(
         intent: Intent?,
         intentUpdated: Boolean,
-        shouldClearBackStack: Boolean = false,
+        navController: NavController,
         validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
         handleIntent: (intent: Intent?) -> Unit = {}
-    ) {
-        this.intentUpdated = intentUpdated
-
-        if (intentUpdated) clearBackStack(true)
-
-        setNavigatorWithDeeplinkIntent(intent, validateDeeplinkRequest)
-        handleIntent(intent)
-        intent?.data = null
-    }
-
-    private fun setNavigatorWithDeeplinkIntent(
-        intent: Intent?,
-        validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null
     ) {
         val deeplinkRequest = when {
             validateDeeplinkRequest != null -> validateDeeplinkRequest
@@ -92,7 +82,15 @@ open class DeeplinkNavigator {
             else -> null
         }
 
-        deeplinkRequest?.let { navigatorDeeplink.postValue(it) }
+        deeplinkRequest?.let {
+            if (navController.graph.hasDeepLink(it.deeplink) && intentUpdated.not()) {
+                this.hasSetGraphHandledDeeplink = intentUpdated.not()
+            } else {
+                navigatorDeeplink.postValue(it)
+            }
+        }
+        handleIntent(intent)
+        intent?.data = null
     }
 
     companion object {

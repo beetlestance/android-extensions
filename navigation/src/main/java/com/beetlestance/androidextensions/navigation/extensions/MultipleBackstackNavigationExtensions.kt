@@ -17,15 +17,20 @@ import com.beetlestance.androidextensions.navigation.data.NavAnimations
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-private var mNavGraphIds: List<Int> = emptyList()
-private var mContainerId: Int = -1
+internal var mNavGraphIds: List<Int> = emptyList()
+    private set
+
+internal var mContainerId: Int = -1
+    private set
+
 internal var mNavAnimations: NavAnimations = NavAnimations()
+    private set
 
 /**
  * @param navGraphIds the graph ids to setup with [BottomNavigationView]. [navGraphIds] should
  * be in the exact order in which the [BottomNavigationView] menu is displayed.
  * @param containerId The container in which [NavHostFragment] will attach to.
- * @param customBottomNavigationAnimation Set specific animation resources to run for the fragments that are
+ * @param navAnimations Set specific animation resources to run for the fragments that are
  * entering and exiting while selecting bottomNavigation item.
  * */
 fun Fragment.setupMultipleBackStackBottomNavigation(
@@ -48,7 +53,7 @@ fun Fragment.setupMultipleBackStackBottomNavigation(
  * @param navGraphIds the graph ids to setup with [BottomNavigationView]. [navGraphIds] should
  * be in the exact order in which the [BottomNavigationView] menu is displayed.
  * @param containerId The container in which [NavHostFragment] will attach to.
- * @param customBottomNavigationAnimation Set specific animation resources to run for the fragments that are
+ * @param navAnimations Set specific animation resources to run for the fragments that are
  * entering and exiting while selecting bottomNavigation item.
  * */
 fun AppCompatActivity.setupMultipleBackStackBottomNavigation(

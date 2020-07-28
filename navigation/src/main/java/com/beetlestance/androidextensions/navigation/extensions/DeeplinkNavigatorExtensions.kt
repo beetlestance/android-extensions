@@ -1,7 +1,9 @@
 package com.beetlestance.androidextensions.navigation.extensions
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.observe
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
@@ -10,25 +12,60 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 fun Fragment.handleDeeplink(
     bottomNavigationView: BottomNavigationView,
-    request: NavigateOnceDeeplinkRequest
+    request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
 ) {
-    DeeplinkNavigator.getTopLevelNavigator().handleDeeplink(
-        navController = findNavController(),
-        bottomNavigationView = bottomNavigationView,
-        fragmentManager = childFragmentManager,
-        request = request
-    )
+    val navigator = DeeplinkNavigator.getTopLevelNavigator()
+    navigator.navigateRequest.observe(viewLifecycleOwner) {
+        navigator.handleDeeplink(
+            navController = findNavController(),
+            bottomNavigationView = bottomNavigationView,
+            fragmentManager = childFragmentManager,
+            request = it.request()
+        )
+    }
 }
 
 fun AppCompatActivity.handleDeeplink(
-    activityNavGraphId: Int,
+    navHostFragmentId: Int,
     bottomNavigationView: BottomNavigationView,
-    request: NavigateOnceDeeplinkRequest
+    request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
 ) {
-    DeeplinkNavigator.getTopLevelNavigator().handleDeeplink(
-        navController = findNavController(activityNavGraphId),
-        bottomNavigationView = bottomNavigationView,
-        fragmentManager = supportFragmentManager,
-        request = request
+    val navigator = DeeplinkNavigator.getTopLevelNavigator()
+    navigator.navigateRequest.observe(this) {
+        navigator.handleDeeplink(
+            navController = findNavController(navHostFragmentId),
+            bottomNavigationView = bottomNavigationView,
+            fragmentManager = supportFragmentManager,
+            request = it.request()
+        )
+    }
+}
+
+fun AppCompatActivity.handleDeeplinkIntent(
+    navHostFragmentId: Int,
+    validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
+    handleIntent: (intent: Intent?) -> Unit = {}
+) {
+    DeeplinkNavigator.getTopLevelNavigator().handleDeeplinkIntent(
+        intent = intent,
+        intentUpdated = false,
+        validateDeeplinkRequest = validateDeeplinkRequest,
+        handleIntent = handleIntent,
+        navController = findNavController(navHostFragmentId)
+    )
+}
+
+fun AppCompatActivity.handleOnNewDeeplinkIntent(
+    intent: Intent?,
+    navHostFragmentId: Int,
+    validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
+    handleIntent: (intent: Intent?) -> Unit = {}
+) {
+    DeeplinkNavigator.getTopLevelNavigator().handleDeeplinkIntent(
+        intent = intent,
+        intentUpdated = true,
+        validateDeeplinkRequest = validateDeeplinkRequest,
+        handleIntent = handleIntent,
+        navController = findNavController(navHostFragmentId)
     )
 }

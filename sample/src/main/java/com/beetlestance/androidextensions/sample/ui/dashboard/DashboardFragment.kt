@@ -84,12 +84,7 @@ class DashboardFragment : Fragment() {
             }
         }
 
-        deeplinkNavigator.observerForTopLevelNavigation.observe(viewLifecycleOwner) {
-            handleDeeplink(
-                bottomNavigationView = requireBinding().dashboardFragmentBottomNavigation,
-                request = it
-            )
-        }
+        handleDeeplink(requireBinding().dashboardFragmentBottomNavigation)
     }
 
     @Synchronized

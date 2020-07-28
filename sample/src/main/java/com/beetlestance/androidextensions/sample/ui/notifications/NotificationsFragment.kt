@@ -54,7 +54,7 @@ class NotificationsFragment : Fragment() {
         // Notification fragment is of same scope as dashboard fragment, thus a share the same
         // NavHostFragment and we can navigate to bottomNavigation fragment only from dashboard
         // So first we exists from current flow and then navigate to desired fragment
-        deeplinkNavigator.observeForClearBackStack.observe(viewLifecycleOwner) {
+        deeplinkNavigator.resetStackBeforeNavigation.observe(viewLifecycleOwner) {
             if (it) findNavController().popBackStack(R.id.dashboardFragment, false)
         }
 
