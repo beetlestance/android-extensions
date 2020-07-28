@@ -16,14 +16,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 internal var mNavGraphIds: List<Int> = emptyList()
 internal var mContainerId: Int? = null
-var NAV_ENTER_ANIM =
-    R.anim.fragment_open_enter
-var NAV_EXIT_ANIM =
-    R.anim.fragment_open_exit
-var NAV_POP_ENTER_ANIM =
-    R.anim.fragment_close_enter
-var NAV_POP_EXIT_ANIM =
-    R.anim.fragment_close_exit
+var NAV_ENTER_ANIM = R.anim.fragment_open_enter
+var NAV_EXIT_ANIM = R.anim.fragment_open_exit
+var NAV_POP_ENTER_ANIM = R.anim.fragment_close_enter
+var NAV_POP_EXIT_ANIM = R.anim.fragment_close_exit
 
 /**
  * Ported from: https://github.com/android/architecture-components-samples/blob/master/NavigationAdvancedSample
@@ -277,10 +273,7 @@ fun BottomNavigationView.navigateDeeplink(
             "Please make sure you have setup container id with DeeplinkNavigationBuilder"
         )
     navGraphIds.forEachIndexed { index, navGraphId ->
-        val fragmentTag =
-            getFragmentTag(
-                index
-            )
+        val fragmentTag = getFragmentTag(index)
 
         // Find or create the Navigation host fragment
         val navHostFragment =

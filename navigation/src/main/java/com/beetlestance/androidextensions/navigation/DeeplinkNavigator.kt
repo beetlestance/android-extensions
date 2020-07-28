@@ -10,11 +10,14 @@ import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
 import com.beetlestance.androidextensions.navigation.util.toSingleEvent
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
+/**
+ *
+ */
 open class DeeplinkNavigator {
+    var intentUpdated: Boolean = false
+
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     val observerForTopLevelNavigation = navigatorDeeplink.toSingleEvent()
-
-    var intentUpdated: Boolean = false
 
     private val clearBackStack: MutableLiveData<Boolean> = MutableLiveData(false)
     val observeForClearBackStack = clearBackStack.toSingleEvent()
@@ -85,7 +88,7 @@ open class DeeplinkNavigator {
             deeplinkNavigatorInstance
                 ?: DeeplinkNavigator()
                     .also { navigator ->
-                deeplinkNavigatorInstance = navigator
-            }
+                        deeplinkNavigatorInstance = navigator
+                    }
     }
 }
