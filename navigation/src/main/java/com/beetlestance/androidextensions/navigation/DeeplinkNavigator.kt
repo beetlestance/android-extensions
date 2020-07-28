@@ -27,14 +27,14 @@ open class DeeplinkNavigator {
             }
         }
 
-    internal var resetStackBeforeNavigation: Boolean = false
+    private var resetStackBeforeNavigation: Boolean = false
 
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     internal val navigateRequest = navigatorDeeplink.toSingleEvent()
 
 
     private val clearBackStack: MutableLiveData<Boolean> = MutableLiveData(false)
-    val popToPrimaryFragment = clearBackStack.toSingleEvent()
+    internal val popToPrimaryFragment = clearBackStack.toSingleEvent()
 
     fun navigateToTopLevelDestination(request: NavigateOnceDeeplinkRequest) {
         clearBackStack.postValue(resetStackBeforeNavigation)
