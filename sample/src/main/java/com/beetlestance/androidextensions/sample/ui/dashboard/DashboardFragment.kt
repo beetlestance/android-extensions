@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import com.beetlestance.androidextensions.navigation.DeeplinkNavigation
 import com.beetlestance.androidextensions.navigation.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.navigateOnce
 import com.beetlestance.androidextensions.navigation.navigator.DeeplinkNavigator
@@ -62,7 +63,7 @@ class DashboardFragment : Fragment() {
      * Called on first creation and when restoring state.
      */
     private fun setupBottomNavigationBar() {
-        deeplinkNavigator.setNavigatorComponents(
+        DeeplinkNavigation.setEssentialComponents(
             navGraphIds = NAV_GRAPH_IDS,
             containerId = R.id.nav_host_fragment_dashboard
         )

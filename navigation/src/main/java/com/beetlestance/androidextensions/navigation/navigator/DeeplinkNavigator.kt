@@ -10,16 +10,9 @@ import com.beetlestance.androidextensions.navigation.navigateOnce
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 open class DeeplinkNavigator {
-    internal var navGraphIds: List<Int> = emptyList()
-    internal var containerId: Int? = null
 
-    fun setNavigatorComponents(
-        navGraphIds: List<Int>,
-        containerId: Int
-    ) {
-        this.navGraphIds = navGraphIds
-        this.containerId = containerId
-    }
+
+
 
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     val observerForTopLevelNavigation = navigatorDeeplink.toSingleEvent()
