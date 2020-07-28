@@ -6,9 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.findNavController
-import com.beetlestance.androidextensions.navigation.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.navigator.DeeplinkNavigator
-import com.beetlestance.androidextensions.sample.ui.dashboard.DashboardFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -24,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.SampleApp_MainActivityTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        deeplinkNavigator.handleDeeplinkIntent(intent, false)
+        deeplinkNavigator.handleDeeplinkIntent(intent)
     }
 
     /**
@@ -34,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        deeplinkNavigator.handleDeeplinkIntent(intent, true)
+        deeplinkNavigator.handleDeeplinkIntent(intent)
     }
 
     /**

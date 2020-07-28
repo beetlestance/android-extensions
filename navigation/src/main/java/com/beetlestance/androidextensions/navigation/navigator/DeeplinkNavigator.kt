@@ -24,14 +24,6 @@ open class DeeplinkNavigator {
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     val observerForTopLevelNavigation = navigatorDeeplink.toSingleEvent()
 
-    var handleDeeplinkIfAny: NavigateOnceDeeplinkRequest? = null
-        private set
-        get() {
-            val navigateRequest = field
-            handleDeeplinkIfAny = null
-            return navigateRequest
-        }
-
     private val clearBackStack: MutableLiveData<Boolean> = MutableLiveData(false)
     val observeForClearBackStack = clearBackStack.toSingleEvent()
 
@@ -62,19 +54,17 @@ open class DeeplinkNavigator {
 
     fun handleDeeplinkIntent(
         intent: Intent?,
-        isIntentUpdated: Boolean = false,
         validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
         handleIntent: (intent: Intent?) -> Unit = {}
     ) {
-        setNavigatorWithDeeplinkIntent(intent, validateDeeplinkRequest, isIntentUpdated)
+        setNavigatorWithDeeplinkIntent(intent, validateDeeplinkRequest)
         handleIntent(intent)
         intent?.data = null
     }
 
     private fun setNavigatorWithDeeplinkIntent(
         intent: Intent?,
-        validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
-        intentUpdated: Boolean
+        validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null
     ) {
         val deeplinkRequest = when {
             validateDeeplinkRequest != null -> validateDeeplinkRequest
@@ -82,11 +72,7 @@ open class DeeplinkNavigator {
             else -> null
         }
 
-        if (intentUpdated) {
-            deeplinkRequest?.let { navigatorDeeplink.postValue(it) }
-        } else {
-            handleDeeplinkIfAny = deeplinkRequest
-        }
+        deeplinkRequest?.let { navigatorDeeplink.postValue(it) }
     }
 
     companion object {

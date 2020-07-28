@@ -33,7 +33,6 @@ fun BottomNavigationView.setupWithNavController(
     val navGraphIds = deeplinkNavigator.navGraphIds
     val containerId = deeplinkNavigator.containerId
         ?: throw IllegalAccessException("Container Id is not setup. Make sure to call DeeplinkNavigator.getTopLeveNavigator().setNavigatorComponents")
-    val request = deeplinkNavigator.handleDeeplinkIfAny
     // Map of tags
     val graphIdToTagMap = SparseArray<String>()
 

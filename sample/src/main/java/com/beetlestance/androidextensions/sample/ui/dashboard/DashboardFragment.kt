@@ -51,15 +51,6 @@ class DashboardFragment : Fragment() {
                 else -> false
             }
         }
-
-        deeplinkNavigator.observerForTopLevelNavigation.observe(viewLifecycleOwner) {
-            deeplinkNavigator.handleDeeplink(
-                topLevelNavController = findNavController(),
-                fragmentManager = childFragmentManager,
-                request = it,
-                bottomNavigationView = requireBinding().dashboardFragmentBottomNavigation
-            )
-        }
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -96,13 +87,11 @@ class DashboardFragment : Fragment() {
             }
         }
 
-
-        // validate deeplink before navigating
-        deeplinkNavigator.handleDeeplinkIfAny?.let {
+        deeplinkNavigator.observerForTopLevelNavigation.observe(viewLifecycleOwner) {
             deeplinkNavigator.handleDeeplink(
                 topLevelNavController = findNavController(),
-                bottomNavigationView = requireBinding().dashboardFragmentBottomNavigation,
                 fragmentManager = childFragmentManager,
+                bottomNavigationView = requireBinding().dashboardFragmentBottomNavigation,
                 request = it
             )
         }
