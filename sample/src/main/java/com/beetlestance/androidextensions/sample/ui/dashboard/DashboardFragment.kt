@@ -9,9 +9,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import com.beetlestance.androidextensions.navigation.navigateOnce
-import com.beetlestance.androidextensions.navigation.navigator.DeeplinkNavigator
-import com.beetlestance.androidextensions.navigation.setupWithNavController
+import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
+import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
+import com.beetlestance.androidextensions.navigation.extensions.setupWithNavController
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.FragmentDashboardBinding
 import dagger.hilt.android.AndroidEntryPoint

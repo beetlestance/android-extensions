@@ -1,13 +1,11 @@
-package com.beetlestance.androidextensions.navigation
+package com.beetlestance.androidextensions.navigation.extensions
 
 import androidx.navigation.NavAction
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigation.NAV_ENTER_ANIM
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigation.NAV_EXIT_ANIM
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigation.NAV_POP_ENTER_ANIM
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigation.NAV_POP_EXIT_ANIM
+import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.data.NavigateOnceDirectionRequest
 
 /**
  * The extension for [NavController] which uses provide [NavigateOnceDeeplinkRequest] to navigate

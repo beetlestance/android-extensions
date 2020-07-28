@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.navigation
+package com.beetlestance.androidextensions.navigation.data
 
 import android.net.Uri
 

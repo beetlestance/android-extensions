@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.navigation.navigator
+package com.beetlestance.androidextensions.navigation.util
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleOwner
@@ -15,7 +15,10 @@ internal class LiveEvent<T> : MediatorLiveData<T>() {
 
     @MainThread
     override fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
-        val wrapper = ObserverWrapper(observer)
+        val wrapper =
+            ObserverWrapper(
+                observer
+            )
         val set = observers[owner]
         set?.apply {
             add(wrapper)
@@ -76,7 +79,8 @@ internal class LiveEvent<T> : MediatorLiveData<T>() {
 }
 
 fun <T> LiveData<T>.toSingleEvent(): LiveData<T> {
-    val result = LiveEvent<T>()
+    val result =
+        LiveEvent<T>()
     result.addSource(this) {
         result.value = it
     }

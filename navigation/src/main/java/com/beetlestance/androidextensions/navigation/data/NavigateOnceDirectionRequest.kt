@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.navigation
+package com.beetlestance.androidextensions.navigation.data
 
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions

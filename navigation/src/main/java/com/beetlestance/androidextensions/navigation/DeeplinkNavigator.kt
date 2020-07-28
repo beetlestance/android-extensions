@@ -1,12 +1,13 @@
-package com.beetlestance.androidextensions.navigation.navigator
+package com.beetlestance.androidextensions.navigation
 
 import android.content.Intent
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
-import com.beetlestance.androidextensions.navigation.NavigateOnceDeeplinkRequest
-import com.beetlestance.androidextensions.navigation.navigateDeeplink
-import com.beetlestance.androidextensions.navigation.navigateOnce
+import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.extensions.navigateDeeplink
+import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
+import com.beetlestance.androidextensions.navigation.util.toSingleEvent
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 open class DeeplinkNavigator {
@@ -47,6 +48,7 @@ open class DeeplinkNavigator {
     fun handleDeeplinkIntent(
         intent: Intent?,
         intentUpdated: Boolean,
+        shouldClearBackStack: Boolean = false,
         validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
         handleIntent: (intent: Intent?) -> Unit = {}
     ) {
@@ -66,7 +68,9 @@ open class DeeplinkNavigator {
     ) {
         val deeplinkRequest = when {
             validateDeeplinkRequest != null -> validateDeeplinkRequest
-            intent?.data != null -> NavigateOnceDeeplinkRequest(deeplink = intent.data!!)
+            intent?.data != null -> NavigateOnceDeeplinkRequest(
+                deeplink = intent.data!!
+            )
             else -> null
         }
 
@@ -78,7 +82,9 @@ open class DeeplinkNavigator {
 
         // Provide single instance for [TopLevelNavigator]
         fun getTopLevelNavigator() =
-            deeplinkNavigatorInstance ?: DeeplinkNavigator().also { navigator ->
+            deeplinkNavigatorInstance
+                ?: DeeplinkNavigator()
+                    .also { navigator ->
                 deeplinkNavigatorInstance = navigator
             }
     }

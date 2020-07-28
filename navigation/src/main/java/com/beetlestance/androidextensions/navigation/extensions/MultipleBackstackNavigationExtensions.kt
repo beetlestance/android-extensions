@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.navigation
+package com.beetlestance.androidextensions.navigation.extensions
 
 import android.util.SparseArray
 import androidx.core.util.forEach
@@ -9,11 +9,21 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigation.NAV_ENTER_ANIM
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigation.NAV_EXIT_ANIM
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigation.NAV_POP_ENTER_ANIM
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigation.NAV_POP_EXIT_ANIM
+import com.beetlestance.androidextensions.navigation.R
+import com.beetlestance.androidextensions.navigation.data.NavAnimations
+import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
+
+internal var mNavGraphIds: List<Int> = emptyList()
+internal var mContainerId: Int? = null
+var NAV_ENTER_ANIM =
+    R.anim.fragment_open_enter
+var NAV_EXIT_ANIM =
+    R.anim.fragment_open_exit
+var NAV_POP_ENTER_ANIM =
+    R.anim.fragment_close_enter
+var NAV_POP_EXIT_ANIM =
+    R.anim.fragment_close_exit
 
 /**
  * Ported from: https://github.com/android/architecture-components-samples/blob/master/NavigationAdvancedSample
@@ -35,12 +45,13 @@ fun BottomNavigationView.setupWithNavController(
     customBottomNavigationAnimation: NavAnimations = NavAnimations()
 ): LiveData<NavController> {
 
-    // setup these components for late use in navigation
-    DeeplinkNavigation.setComponents(
-        navGraphIds = navGraphIds,
-        containerId = containerId,
-        navAnimations = customBottomNavigationAnimation
-    )
+    // Store all the information in above objects
+    mNavGraphIds = navGraphIds
+    mContainerId = containerId
+    NAV_ENTER_ANIM = customBottomNavigationAnimation.enterAnimation
+    NAV_EXIT_ANIM = customBottomNavigationAnimation.exitAnimation
+    NAV_POP_ENTER_ANIM = customBottomNavigationAnimation.popEnterAnimation
+    NAV_POP_EXIT_ANIM = customBottomNavigationAnimation.popExitAnimation
 
     // Map of tags
     val graphIdToTagMap = SparseArray<String>()
@@ -58,7 +69,10 @@ fun BottomNavigationView.setupWithNavController(
     // See the link below for the changes in Navigation library.
     // https://android.googlesource.com/platform/frameworks/support/+/523601f023afb95f861e94c149c50e4962ea42e3
     navGraphIds.reversed().forEachIndexed { index, navGraphId ->
-        val fragmentTag: String = getFragmentTag(index)
+        val fragmentTag: String =
+            getFragmentTag(
+                index
+            )
 
         // Find or create the Navigation host fragment
         val navHostFragment =
@@ -256,21 +270,26 @@ fun BottomNavigationView.navigateDeeplink(
     fragmentManager: FragmentManager,
     request: NavigateOnceDeeplinkRequest
 ) {
-    val navGraphIds = DeeplinkNavigation.navGraphIds
-    val containerId = DeeplinkNavigation.containerId
+    val navGraphIds =
+        mNavGraphIds
+    val containerId = mContainerId
         ?: throw IllegalArgumentException(
             "Please make sure you have setup container id with DeeplinkNavigationBuilder"
         )
     navGraphIds.forEachIndexed { index, navGraphId ->
-        val fragmentTag = getFragmentTag(index)
+        val fragmentTag =
+            getFragmentTag(
+                index
+            )
 
         // Find or create the Navigation host fragment
-        val navHostFragment = obtainNavHostFragment(
-            fragmentManager,
-            fragmentTag,
-            navGraphId,
-            containerId
-        )
+        val navHostFragment =
+            obtainNavHostFragment(
+                fragmentManager,
+                fragmentTag,
+                navGraphId,
+                containerId
+            )
 
         // Handle deeplink
         val canHandleDeeplink = navHostFragment.navController.graph.hasDeepLink(request.deeplink)

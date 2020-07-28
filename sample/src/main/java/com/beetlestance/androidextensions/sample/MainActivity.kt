@@ -6,7 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.findNavController
-import com.beetlestance.androidextensions.navigation.navigator.DeeplinkNavigator
+import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -22,7 +22,10 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.SampleApp_MainActivityTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        deeplinkNavigator.handleDeeplinkIntent(intent, false)
+        deeplinkNavigator.handleDeeplinkIntent(
+            intent = intent,
+            intentUpdated = false
+        )
     }
 
     /**
@@ -32,7 +35,12 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        deeplinkNavigator.handleDeeplinkIntent(intent, true)
+        findNavController(R.id.nav_host_fragment_container).popBackStack()
+        deeplinkNavigator.handleDeeplinkIntent(
+            intent = intent,
+            intentUpdated = true,
+            shouldClearBackStack = false
+        )
     }
 
     /**
