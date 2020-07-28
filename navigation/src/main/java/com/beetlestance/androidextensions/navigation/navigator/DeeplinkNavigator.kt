@@ -51,6 +51,10 @@ open class DeeplinkNavigator {
         handleIntent: (intent: Intent?) -> Unit = {}
     ) {
         this.intentUpdated = intentUpdated
+
+        if (intentUpdated)
+            clearBackStack(true)
+
         setNavigatorWithDeeplinkIntent(intent, validateDeeplinkRequest)
         handleIntent(intent)
         intent?.data = null
