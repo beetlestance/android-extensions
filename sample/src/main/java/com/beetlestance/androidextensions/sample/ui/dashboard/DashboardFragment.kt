@@ -108,26 +108,6 @@ class DashboardFragment : Fragment() {
         binding?.rootDashboardFragment?.transitionToEnd()
     }
 
-    private fun handleDeeplinkOrElse(
-        request: NavigateOnceDeeplinkRequest,
-        handleDeeplink: (NavigateOnceDeeplinkRequest) -> Unit
-    ): Boolean {
-        // validate and modify your deeplink to your need
-        // val validDeepLink = validateDeeplink(deepLink)
-
-        // check if deeplink belongs to activity graph or bottomNavigation graphs
-        val canActivityHandleDeeplink = findNavController().graph.hasDeepLink(request.deeplink)
-        return if (canActivityHandleDeeplink) {
-            // handle in currentDestination graph
-            findNavController().navigateOnce(request)
-            true
-        } else {
-            // handel through bottomNavigation
-            handleDeeplink(request)
-            false
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         currentNavController = null
