@@ -43,11 +43,4 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    /**
-     * check if current fragment is DashboardFragment
-     */
-    private fun isDashboardFragment(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_container)
-        return navController.currentDestination?.id == R.id.dashboardFragment
-    }
 }
