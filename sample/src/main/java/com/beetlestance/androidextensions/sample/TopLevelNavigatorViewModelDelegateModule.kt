@@ -1,9 +1,8 @@
 package com.beetlestance.androidextensions.sample
 
-import com.beetlestance.androidextensions.sample.NavigatorViewModelDelegate
-import com.beetlestance.androidextensions.sample.TopLevelNavigatorViewModelDelegate
-import dagger.Binds
+import com.beetlestance.androidextensions.navigation.navigator.DeeplinkNavigator
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
 import javax.inject.Singleton
@@ -11,10 +10,10 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(ApplicationComponent::class)
-abstract class TopLevelNavigatorViewModelDelegateModule {
+object TopLevelNavigatorViewModelDelegateModule {
 
     @Singleton
-    @Binds
-    abstract fun bindTopLevelNavigator(navigator: NavigatorViewModelDelegate): TopLevelNavigatorViewModelDelegate
+    @Provides
+    fun provideTopLevelNavigator(): DeeplinkNavigator = DeeplinkNavigator.getTopLevelNavigator()
 }
 

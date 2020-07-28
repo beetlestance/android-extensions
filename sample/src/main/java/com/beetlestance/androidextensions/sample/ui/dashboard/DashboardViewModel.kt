@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import com.beetlestance.androidextensions.navigation.NavigateOnceDirectionRequest
 import com.beetlestance.androidextensions.sample.TopLevelNavigatorViewModelDelegate
 
-class DashboardViewModel @ViewModelInject constructor(topLevelNavigatorViewModelDelegate: TopLevelNavigatorViewModelDelegate) :
-    ViewModel(), TopLevelNavigatorViewModelDelegate by topLevelNavigatorViewModelDelegate {
+class DashboardViewModel @ViewModelInject constructor() :
+    ViewModel() {
 
     fun navigateToNotificationFragment(): NavigateOnceDirectionRequest {
         return NavigateOnceDirectionRequest(

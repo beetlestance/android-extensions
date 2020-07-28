@@ -9,12 +9,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.beetlestance.androidextensions.navigation.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.navigator.DeeplinkNavigator
 import com.beetlestance.androidextensions.sample.constants.FEED_DEEPLINK
 import com.beetlestance.androidextensions.sample.constants.NOTIFICATION_DEEPLINK
 import com.beetlestance.androidextensions.sample.constants.SEARCH_DEEPLINK
 import com.beetlestance.androidextensions.sample.databinding.FragmentHomeBinding
-import com.beetlestance.androidextensions.sample.event.Event
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -22,6 +23,9 @@ class HomeFragment : Fragment() {
     private val viewModel: HomeViewModel by viewModels()
     private val args: HomeFragmentArgs by navArgs()
     private var binding: FragmentHomeBinding? = null
+
+    @Inject
+    lateinit var deeplinkNavigator: DeeplinkNavigator
 
     var multipleInstancesAllowed: Boolean = false
     var shouldUpdateArguments: Boolean = false
@@ -51,7 +55,7 @@ class HomeFragment : Fragment() {
         binding?.fragmentHomeOpenFeed?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
-            viewModel.navigatorDeeplink.value = Event(
+            deeplinkNavigator.navigateToTopLevelDestination(
                 NavigateOnceDeeplinkRequest(
                     deeplink = FEED_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,
@@ -63,7 +67,7 @@ class HomeFragment : Fragment() {
         binding?.fragmentHomeOpenNotification?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
-            viewModel.navigatorDeeplink.value = Event(
+            deeplinkNavigator.navigateToTopLevelDestination(
                 NavigateOnceDeeplinkRequest(
                     deeplink = NOTIFICATION_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,
@@ -75,7 +79,7 @@ class HomeFragment : Fragment() {
         binding?.fragmentHomeOpenSearch?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
-            viewModel.navigatorDeeplink.value = Event(
+            deeplinkNavigator.navigateToTopLevelDestination(
                 NavigateOnceDeeplinkRequest(
                     deeplink = SEARCH_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,

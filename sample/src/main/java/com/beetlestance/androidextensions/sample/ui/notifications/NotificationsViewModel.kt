@@ -10,5 +10,5 @@ import com.beetlestance.androidextensions.sample.constants.HOME_DEEPLINK
 import com.beetlestance.androidextensions.sample.constants.SEARCH_DEEPLINK
 import com.beetlestance.androidextensions.sample.event.Event
 
-class NotificationsViewModel @ViewModelInject constructor(topLevelNavigatorViewModelDelegate: TopLevelNavigatorViewModelDelegate) :
-    ViewModel(), TopLevelNavigatorViewModelDelegate by topLevelNavigatorViewModelDelegate
+class NotificationsViewModel @ViewModelInject constructor() :
+    ViewModel()

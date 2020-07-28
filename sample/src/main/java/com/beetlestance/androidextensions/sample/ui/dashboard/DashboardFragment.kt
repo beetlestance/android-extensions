@@ -10,18 +10,21 @@ import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.beetlestance.androidextensions.navigation.NavigateOnceDeeplinkRequest
-import com.beetlestance.androidextensions.navigation.navigateDeeplink
 import com.beetlestance.androidextensions.navigation.navigateOnce
+import com.beetlestance.androidextensions.navigation.navigator.DeeplinkNavigator
 import com.beetlestance.androidextensions.navigation.setupWithNavController
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.FragmentDashboardBinding
-import com.beetlestance.androidextensions.sample.event.observeEvent
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class DashboardFragment : Fragment() {
 
     private val viewModel: DashboardViewModel by viewModels()
+
+    @Inject
+    lateinit var deeplinkNavigator: DeeplinkNavigator
 
     private var binding: FragmentDashboardBinding? = null
     private var currentNavController: NavController? = null
@@ -49,8 +52,13 @@ class DashboardFragment : Fragment() {
             }
         }
 
-        viewModel.navigatorDeeplink.observeEvent(viewLifecycleOwner) {
-            handleDeeplinkOrElse(it) { deeplink -> bottomNavigationHandleDeeplink(deeplink) }
+        deeplinkNavigator.observerForTopLevelNavigation.observe(viewLifecycleOwner) {
+            deeplinkNavigator.handleDeeplink(
+                topLevelNavController = findNavController(),
+                fragmentManager = childFragmentManager,
+                request = it,
+                bottomNavigationView = requireBinding().dashboardFragmentBottomNavigation
+            )
         }
     }
 
@@ -63,20 +71,14 @@ class DashboardFragment : Fragment() {
      * Called on first creation and when restoring state.
      */
     private fun setupBottomNavigationBar() {
-        var deepLink: NavigateOnceDeeplinkRequest? = null
-        viewModel.handleDeeplinkIfAny?.let {
-            handleDeeplinkOrElse(it) { validDeeplink ->
-                deepLink = validDeeplink
-            }
-            viewModel.handleDeeplinkIfAny = null
-        }
+        deeplinkNavigator.setNavigatorComponents(
+            navGraphIds = NAV_GRAPH_IDS,
+            containerId = R.id.nav_host_fragment_dashboard
+        )
 
         // Setup the bottom navigation view with a list of navigation graphs
         requireBinding().dashboardFragmentBottomNavigation.setupWithNavController(
-            navGraphIds = NAV_GRAPH_IDS,
-            fragmentManager = childFragmentManager,
-            containerId = R.id.nav_host_fragment_dashboard,
-            request = deepLink
+            fragmentManager = childFragmentManager
         ).observe(viewLifecycleOwner) { navController ->
             currentNavController = navController
 
@@ -92,6 +94,17 @@ class DashboardFragment : Fragment() {
                     }
                 }
             }
+        }
+
+
+        // validate deeplink before navigating
+        deeplinkNavigator.handleDeeplinkIfAny?.let {
+            deeplinkNavigator.handleDeeplink(
+                topLevelNavController = findNavController(),
+                bottomNavigationView = requireBinding().dashboardFragmentBottomNavigation,
+                fragmentManager = childFragmentManager,
+                request = it
+            )
         }
     }
 
@@ -110,11 +123,11 @@ class DashboardFragment : Fragment() {
         handleDeeplink: (NavigateOnceDeeplinkRequest) -> Unit
     ): Boolean {
         // validate and modify your deeplink to your need
-        // val validDeepLink = deeplinkValidator.validateDeeplink(deepLink)
+        // val validDeepLink = validateDeeplink(deepLink)
 
         // check if deeplink belongs to activity graph or bottomNavigation graphs
-        val canHandleDeeplink = findNavController().graph.hasDeepLink(request.deeplink)
-        return if (canHandleDeeplink) {
+        val canActivityHandleDeeplink = findNavController().graph.hasDeepLink(request.deeplink)
+        return if (canActivityHandleDeeplink) {
             // handle in currentDestination graph
             findNavController().navigateOnce(request)
             true
@@ -122,17 +135,6 @@ class DashboardFragment : Fragment() {
             // handel through bottomNavigation
             handleDeeplink(request)
             false
-        }
-    }
-
-    private fun bottomNavigationHandleDeeplink(request: NavigateOnceDeeplinkRequest) {
-        requireBinding().dashboardFragmentBottomNavigation.post {
-            requireBinding().dashboardFragmentBottomNavigation.navigateDeeplink(
-                navGraphIds = NAV_GRAPH_IDS,
-                fragmentManager = childFragmentManager,
-                containerId = R.id.nav_host_fragment_dashboard,
-                request = request
-            )
         }
     }
 

@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.beetlestance.androidextensions.navigation.navigator.DeeplinkNavigator
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
@@ -25,12 +26,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  * for more information on what options are available.
  */
 fun BottomNavigationView.setupWithNavController(
-    navGraphIds: List<Int>,
-    fragmentManager: FragmentManager,
-    containerId: Int,
-    request: NavigateOnceDeeplinkRequest?
+    fragmentManager: FragmentManager
 ): LiveData<NavController> {
 
+    val deeplinkNavigator = DeeplinkNavigator.getTopLevelNavigator()
+    val navGraphIds = deeplinkNavigator.navGraphIds
+    val containerId = deeplinkNavigator.containerId
+        ?: throw IllegalAccessException("Container Id is not setup. Make sure to call DeeplinkNavigator.getTopLeveNavigator().setNavigatorComponents")
+    val request = deeplinkNavigator.handleDeeplinkIfAny
     // Map of tags
     val graphIdToTagMap = SparseArray<String>()
 
@@ -151,7 +154,7 @@ fun BottomNavigationView.setupWithNavController(
     setupItemReselected(graphIdToTagMap, fragmentManager)
 
     // Handle deep link
-    request?.let { navigateDeeplink(navGraphIds, fragmentManager, containerId, it) }
+    // request?.let { navigateDeeplink(fragmentManager, it) }
 
     // Finally, ensure that we update our BottomNavigationView when the back stack changes
     fragmentManager.addOnBackStackChangedListener {
@@ -242,11 +245,14 @@ private fun getFragmentTag(index: Int) = "bottomNavigation#$index"
 
 // Handle deeplink
 fun BottomNavigationView.navigateDeeplink(
-    navGraphIds: List<Int>,
     fragmentManager: FragmentManager,
-    containerId: Int,
     request: NavigateOnceDeeplinkRequest
 ) {
+    val deeplinkNavigator = DeeplinkNavigator.getTopLevelNavigator()
+    val navGraphIds = deeplinkNavigator.navGraphIds
+    val containerId = deeplinkNavigator.containerId
+        ?: throw IllegalAccessException("Container Id is not setup. Make sure to call DeeplinkNavigator.getTopLeveNavigator().setNavigatorComponents")
+
     navGraphIds.forEachIndexed { index, navGraphId ->
         val fragmentTag =
             getFragmentTag(

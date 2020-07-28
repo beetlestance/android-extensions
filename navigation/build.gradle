@@ -21,10 +21,24 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        def e = excludes
+        // AGP 4.1.0-alpha06 added an exclude which breaks Kotlin libraries. Remove the exclude
+        // until we upgrade to an AGP version with a fix
+        e.remove("/META-INF/*.kotlin_module")
+        excludes = e
+
+        // Exclude them to enable our test APK to build (has no effect on our AARs)
+        excludes += "/META-INF/AL2.0"
+        excludes += "/META-INF/LGPL2.1"
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }

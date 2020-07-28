@@ -7,23 +7,27 @@ import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.beetlestance.androidextensions.navigation.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.navigator.DeeplinkNavigator
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.constants.FEED_DEEPLINK
 import com.beetlestance.androidextensions.sample.constants.HOME_DEEPLINK
 import com.beetlestance.androidextensions.sample.constants.SEARCH_DEEPLINK
 import com.beetlestance.androidextensions.sample.databinding.FragmentNotificationsBinding
-import com.beetlestance.androidextensions.sample.event.Event
-import com.beetlestance.androidextensions.sample.event.observeEvent
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class NotificationsFragment : Fragment() {
 
     private val viewModel: NotificationsViewModel by viewModels()
     private val args: NotificationsFragmentArgs by navArgs()
+
+    @Inject
+    lateinit var deeplinkNavigator: DeeplinkNavigator
 
     private var binding: FragmentNotificationsBinding? = null
 
@@ -50,7 +54,7 @@ class NotificationsFragment : Fragment() {
         // Notification fragment is of same scope as dashboard fragment, thus a share the same
         // NavHostFragment and we can navigate to bottomNavigation fragment only from dashboard
         // So first we exists from current flow and then navigate to desired fragment
-        viewModel.clearBackStack.observeEvent(viewLifecycleOwner) {
+        deeplinkNavigator.observeForClearBackStack.observe(viewLifecycleOwner) {
             if (it) findNavController().popBackStack(R.id.dashboardFragment, false)
         }
 
@@ -66,40 +70,40 @@ class NotificationsFragment : Fragment() {
         binding?.fragmentNotificationOpenFeed?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentNotificationInputArguments?.editText?.text?.toString() else null
-            viewModel.navigatorDeeplink.value = Event(
+            deeplinkNavigator.navigateToTopLevelDestination(
                 NavigateOnceDeeplinkRequest(
                     deeplink = FEED_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,
                     allowMultipleInstance = multipleInstancesAllowed
                 )
             )
-            viewModel.clearBackStack.value = Event(true)
+            deeplinkNavigator.clearBackStack(true)
         }
 
         binding?.fragmentNotificationOpenNotification?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentNotificationInputArguments?.editText?.text?.toString() else null
-            viewModel.navigatorDeeplink.value = Event(
+            deeplinkNavigator.navigateToTopLevelDestination(
                 NavigateOnceDeeplinkRequest(
                     deeplink = HOME_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,
                     allowMultipleInstance = multipleInstancesAllowed
                 )
             )
-            viewModel.clearBackStack.value = Event(true)
+            deeplinkNavigator.clearBackStack(true)
         }
 
         binding?.fragmentNotificationOpenSearch?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentNotificationInputArguments?.editText?.text?.toString() else null
-            viewModel.navigatorDeeplink.value = Event(
+            deeplinkNavigator.navigateToTopLevelDestination(
                 NavigateOnceDeeplinkRequest(
                     deeplink = SEARCH_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,
                     allowMultipleInstance = multipleInstancesAllowed
                 )
             )
-            viewModel.clearBackStack.value = Event(true)
+            deeplinkNavigator.clearBackStack(true)
         }
     }
 
