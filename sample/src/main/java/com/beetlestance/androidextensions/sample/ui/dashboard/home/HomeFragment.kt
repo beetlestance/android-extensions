@@ -8,8 +8,8 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
+import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.sample.constants.FEED_DEEPLINK
 import com.beetlestance.androidextensions.sample.constants.NOTIFICATION_DEEPLINK
 import com.beetlestance.androidextensions.sample.constants.SEARCH_DEEPLINK
@@ -46,6 +46,9 @@ class HomeFragment : Fragment() {
 
         binding?.fragmentHomeMultipleInstance?.setOnCheckedChangeListener { _, isChecked ->
             multipleInstancesAllowed = isChecked
+            if (isChecked) {
+                binding?.fragmentHomeUpdateArguments?.isChecked = true
+            }
         }
 
         binding?.fragmentHomeUpdateArguments?.setOnCheckedChangeListener { _, isChecked ->

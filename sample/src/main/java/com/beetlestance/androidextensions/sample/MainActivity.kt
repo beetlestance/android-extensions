@@ -5,8 +5,8 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import androidx.navigation.findNavController
 import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
+import com.beetlestance.androidextensions.navigation.extensions.handleMultiFragmentBackStack
 import com.beetlestance.androidextensions.navigation.extensions.handleOnNewDeeplinkIntent
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         handleDeeplinkIntent(R.id.nav_host_fragment_container)
+        handleMultiFragmentBackStack(R.id.nav_host_fragment_container, R.id.dashboardFragment)
     }
 
     /**
