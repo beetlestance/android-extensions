@@ -19,6 +19,8 @@ open class DeeplinkNavigator {
 
     internal var primaryFragmentId: Int? = null
 
+    internal var isBottomNavigationAttachedToActivity: Boolean = false
+
     private var hasSetGraphHandledDeeplink: Boolean = false
         get() {
             val mHasSetGraphHandledDeeplink = field
@@ -55,16 +57,23 @@ open class DeeplinkNavigator {
         fragmentManager: FragmentManager,
         request: NavigateOnceDeeplinkRequest
     ) {
-        val isParentWorthyEnough = navController.graph.hasDeepLink(request.deeplink)
-        when {
-            isParentWorthyEnough && hasSetGraphHandledDeeplink.not() -> {
-                navController.navigateOnce(request)
-            }
-            isParentWorthyEnough.not() -> {
-                bottomNavigationView.navigateDeeplink(
-                    request = request,
-                    fragmentManager = fragmentManager
-                )
+        if (isBottomNavigationAttachedToActivity) {
+            bottomNavigationView.navigateDeeplink(
+                request = request,
+                fragmentManager = fragmentManager
+            )
+        } else {
+            val isParentWorthyEnough = navController.graph.hasDeepLink(request.deeplink)
+            when {
+                isParentWorthyEnough && hasSetGraphHandledDeeplink.not() -> {
+                    navController.navigateOnce(request)
+                }
+                isParentWorthyEnough.not() -> {
+                    bottomNavigationView.navigateDeeplink(
+                        request = request,
+                        fragmentManager = fragmentManager
+                    )
+                }
             }
         }
     }
@@ -83,7 +92,10 @@ open class DeeplinkNavigator {
         }
 
         deeplinkRequest?.let {
-            if (navController.graph.hasDeepLink(it.deeplink) && intentUpdated.not()) {
+            if (isBottomNavigationAttachedToActivity.not()
+                && navController.graph.hasDeepLink(it.deeplink)
+                && intentUpdated.not()
+            ) {
                 this.hasSetGraphHandledDeeplink = intentUpdated.not()
             } else {
                 navigatorDeeplink.postValue(it)

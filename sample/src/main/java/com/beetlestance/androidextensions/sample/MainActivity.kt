@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
+import androidx.navigation.findNavController
 import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
 import com.beetlestance.androidextensions.navigation.extensions.handleOnNewDeeplinkIntent
 import dagger.hilt.android.AndroidEntryPoint

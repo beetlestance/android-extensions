@@ -3,6 +3,7 @@ package com.beetlestance.androidextensions.navigation.extensions
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -46,13 +47,15 @@ fun AppCompatActivity.handleDeeplinkIntent(
     validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
     handleIntent: (intent: Intent?) -> Unit = {}
 ) {
-    DeeplinkNavigator.getTopLevelNavigator().handleDeeplinkIntent(
-        intent = intent,
-        intentUpdated = false,
-        validateDeeplinkRequest = validateDeeplinkRequest,
-        handleIntent = handleIntent,
-        navController = findNavController(navHostFragmentId)
-    )
+    lifecycleScope.launchWhenStarted {
+        DeeplinkNavigator.getTopLevelNavigator().handleDeeplinkIntent(
+            intent = intent,
+            intentUpdated = false,
+            validateDeeplinkRequest = validateDeeplinkRequest,
+            handleIntent = handleIntent,
+            navController = findNavController(navHostFragmentId)
+        )
+    }
 }
 
 fun AppCompatActivity.handleOnNewDeeplinkIntent(

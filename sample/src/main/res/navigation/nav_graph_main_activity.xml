@@ -25,6 +25,8 @@
         android:id="@+id/dashboardFragment"
         android:name="com.beetlestance.androidextensions.sample.ui.dashboard.DashboardFragment"
         android:label="dashboard_fragment"
+        app:enterAnim="@anim/fragment_open_enter"
+        app:popEnterAnim="@anim/fragment_close_enter"
         tools:layout="@layout/fragment_dashboard">
 
         <deepLink
@@ -43,6 +45,8 @@
         android:id="@+id/notificationsFragment"
         android:name="com.beetlestance.androidextensions.sample.ui.notifications.NotificationsFragment"
         android:label="notifications_fragment"
+        app:enterAnim="@anim/fragment_open_enter"
+        app:popEnterAnim="@anim/fragment_close_enter"
         tools:layout="@layout/fragment_notifications">
 
         <deepLink
