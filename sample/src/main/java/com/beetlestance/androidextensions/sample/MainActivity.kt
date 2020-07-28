@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.SampleApp_MainActivityTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        deeplinkNavigator.handleDeeplinkIntent(intent)
+        deeplinkNavigator.handleDeeplinkIntent(intent, false)
     }
 
     /**
@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        deeplinkNavigator.handleDeeplinkIntent(intent)
+        deeplinkNavigator.handleDeeplinkIntent(intent, true)
     }
 
     /**

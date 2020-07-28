@@ -13,6 +13,8 @@ open class DeeplinkNavigator {
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     val observerForTopLevelNavigation = navigatorDeeplink.toSingleEvent()
 
+    var intentUpdated: Boolean = false
+
     private val clearBackStack: MutableLiveData<Boolean> = MutableLiveData(false)
     val observeForClearBackStack = clearBackStack.toSingleEvent()
 
@@ -31,7 +33,8 @@ open class DeeplinkNavigator {
         request: NavigateOnceDeeplinkRequest
     ) {
         val isTopLevelDestination = topLevelNavController.graph.hasDeepLink(request.deeplink)
-        if (isTopLevelDestination) {
+        if (isTopLevelDestination && intentUpdated) {
+            intentUpdated = false
             topLevelNavController.navigateOnce(request)
         } else {
             bottomNavigationView.navigateDeeplink(
@@ -43,9 +46,11 @@ open class DeeplinkNavigator {
 
     fun handleDeeplinkIntent(
         intent: Intent?,
+        intentUpdated: Boolean,
         validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
         handleIntent: (intent: Intent?) -> Unit = {}
     ) {
+        this.intentUpdated = intentUpdated
         setNavigatorWithDeeplinkIntent(intent, validateDeeplinkRequest)
         handleIntent(intent)
         intent?.data = null
