@@ -9,9 +9,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
-import com.beetlestance.androidextensions.navigation.extensions.setupWithNavController
+import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
+import com.beetlestance.androidextensions.navigation.extensions.setupMultipleBackStackBottomNavigation
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.FragmentDashboardBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -62,10 +62,10 @@ class DashboardFragment : Fragment() {
      */
     private fun setupBottomNavigationBar() {
         // Setup the bottom navigation view with a list of navigation graphs
-        requireBinding().dashboardFragmentBottomNavigation.setupWithNavController(
+        setupMultipleBackStackBottomNavigation(
             navGraphIds = NAV_GRAPH_IDS,
             containerId = requireBinding().navHostFragmentDashboard.id,
-            fragmentManager = childFragmentManager
+            bottomNavigationView = requireBinding().dashboardFragmentBottomNavigation
         ).observe(viewLifecycleOwner) { navController ->
             currentNavController = navController
 

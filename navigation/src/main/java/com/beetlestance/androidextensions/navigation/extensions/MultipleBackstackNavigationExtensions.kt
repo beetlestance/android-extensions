@@ -1,25 +1,59 @@
 package com.beetlestance.androidextensions.navigation.extensions
 
 import android.util.SparseArray
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.forEach
 import androidx.core.util.set
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.beetlestance.androidextensions.navigation.R
 import com.beetlestance.androidextensions.navigation.data.NavAnimations
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-internal var mNavGraphIds: List<Int> = emptyList()
-internal var mContainerId: Int? = null
-var NAV_ENTER_ANIM = R.anim.fragment_open_enter
-var NAV_EXIT_ANIM = R.anim.fragment_open_exit
-var NAV_POP_ENTER_ANIM = R.anim.fragment_close_enter
-var NAV_POP_EXIT_ANIM = R.anim.fragment_close_exit
+private var mNavGraphIds: List<Int> = emptyList()
+private var mContainerId: Int = -1
+internal var mNavAnimations: NavAnimations = NavAnimations()
+
+
+fun Fragment.setupMultipleBackStackBottomNavigation(
+    navGraphIds: List<Int>,
+    containerId: Int,
+    bottomNavigationView: BottomNavigationView,
+    navAnimations: NavAnimations = NavAnimations()
+): LiveData<NavController> {
+
+    storeNavDefaults(navGraphIds, containerId, navAnimations)
+
+    return bottomNavigationView.setupMultipleBackStackBottomNavigation(childFragmentManager)
+}
+
+fun AppCompatActivity.setupMultipleBackStackBottomNavigation(
+    navGraphIds: List<Int>,
+    containerId: Int,
+    bottomNavigationView: BottomNavigationView,
+    navAnimations: NavAnimations = NavAnimations()
+): LiveData<NavController> {
+
+    storeNavDefaults(navGraphIds, containerId, navAnimations)
+
+    return bottomNavigationView.setupMultipleBackStackBottomNavigation(supportFragmentManager)
+}
+
+private fun storeNavDefaults(
+    navGraphIds: List<Int>,
+    containerId: Int,
+    navAnimations: NavAnimations
+) {
+    // Store all the information in above objects
+    mNavGraphIds = navGraphIds
+    mContainerId = containerId
+    mNavAnimations = navAnimations
+}
 
 /**
  * Ported from: https://github.com/android/architecture-components-samples/blob/master/NavigationAdvancedSample
@@ -31,23 +65,10 @@ var NAV_POP_EXIT_ANIM = R.anim.fragment_close_exit
  * be in the exact order in which the [BottomNavigationView] menu is displayed.
  * @param fragmentManager The [FragmentManager] which will be used to attach [NavHostFragment]
  * @param containerId The container in which [NavHostFragment] will attach to.
- * @param request The way in which the destination should be loaded. See [NavigateOnceDeeplinkRequest]
- * for more information on what options are available.
+ * @param customBottomNavigationAnimation Set specific animation resources to run for the fragments that are
+ * entering and exiting while selecting bottomNavigation item.
  */
-fun BottomNavigationView.setupWithNavController(
-    navGraphIds: List<Int>,
-    fragmentManager: FragmentManager,
-    containerId: Int,
-    customBottomNavigationAnimation: NavAnimations = NavAnimations()
-): LiveData<NavController> {
-
-    // Store all the information in above objects
-    mNavGraphIds = navGraphIds
-    mContainerId = containerId
-    NAV_ENTER_ANIM = customBottomNavigationAnimation.enterAnimation
-    NAV_EXIT_ANIM = customBottomNavigationAnimation.exitAnimation
-    NAV_POP_ENTER_ANIM = customBottomNavigationAnimation.popEnterAnimation
-    NAV_POP_EXIT_ANIM = customBottomNavigationAnimation.popExitAnimation
+private fun BottomNavigationView.setupMultipleBackStackBottomNavigation(fragmentManager: FragmentManager): LiveData<NavController> {
 
     // Map of tags
     val graphIdToTagMap = SparseArray<String>()
@@ -56,7 +77,7 @@ fun BottomNavigationView.setupWithNavController(
     val selectedNavController = MutableLiveData<NavController>()
 
     // First fragment graph index in the provided list
-    var firstFragmentGraphId = navGraphIds.lastIndex
+    var firstFragmentGraphId = mNavGraphIds.lastIndex
 
     // First create a NavHostFragment for each NavGraph ID
     //
@@ -64,7 +85,7 @@ fun BottomNavigationView.setupWithNavController(
     // [FragmentContainerView].
     // See the link below for the changes in Navigation library.
     // https://android.googlesource.com/platform/frameworks/support/+/523601f023afb95f861e94c149c50e4962ea42e3
-    navGraphIds.reversed().forEachIndexed { index, navGraphId ->
+    mNavGraphIds.reversed().forEachIndexed { index, navGraphId ->
         val fragmentTag: String =
             getFragmentTag(
                 index
@@ -76,13 +97,13 @@ fun BottomNavigationView.setupWithNavController(
                 fragmentManager,
                 fragmentTag,
                 navGraphId,
-                containerId
+                mContainerId
             )
 
         // Obtain its id
         val graphId = navHostFragment.navController.graph.id
 
-        if (index == navGraphIds.lastIndex) {
+        if (index == mNavGraphIds.lastIndex) {
             firstFragmentGraphId = graphId
         }
 
@@ -96,7 +117,7 @@ fun BottomNavigationView.setupWithNavController(
             attachNavHostFragment(
                 fragmentManager,
                 navHostFragment,
-                index == navGraphIds.lastIndex
+                index == mNavGraphIds.lastIndex
             )
         } else {
             detachNavHostFragment(
@@ -133,10 +154,10 @@ fun BottomNavigationView.setupWithNavController(
                     // to it, creating the fixed started destination.
                     fragmentManager.beginTransaction()
                         .setCustomAnimations(
-                            NAV_ENTER_ANIM,
-                            NAV_EXIT_ANIM,
-                            NAV_POP_ENTER_ANIM,
-                            NAV_POP_EXIT_ANIM
+                            mNavAnimations.enterAnimation,
+                            mNavAnimations.exitAnimation,
+                            mNavAnimations.popEnterAnimation,
+                            mNavAnimations.popExitAnimation
                         )
                         .attach(selectedFragment)
                         .setPrimaryNavigationFragment(selectedFragment)
@@ -170,9 +191,6 @@ fun BottomNavigationView.setupWithNavController(
 
     // Optional: on item reselected, pop back stack to the destination of the graph
     setupItemReselected(graphIdToTagMap, fragmentManager)
-
-    // Handle deep link
-    // request?.let { navigateDeeplink(fragmentManager, it) }
 
     // Finally, ensure that we update our BottomNavigationView when the back stack changes
     fragmentManager.addOnBackStackChangedListener {
@@ -262,17 +280,12 @@ private fun FragmentManager.isOnBackStack(backStackName: String): Boolean {
 private fun getFragmentTag(index: Int) = "bottomNavigation#$index"
 
 // Handle deeplink
-fun BottomNavigationView.navigateDeeplink(
+internal fun BottomNavigationView.navigateDeeplink(
     fragmentManager: FragmentManager,
     request: NavigateOnceDeeplinkRequest
 ) {
-    val navGraphIds =
-        mNavGraphIds
-    val containerId = mContainerId
-        ?: throw IllegalArgumentException(
-            "Please make sure you have setup container id with DeeplinkNavigationBuilder"
-        )
-    navGraphIds.forEachIndexed { index, navGraphId ->
+
+    mNavGraphIds.forEachIndexed { index, navGraphId ->
         val fragmentTag = getFragmentTag(index)
 
         // Find or create the Navigation host fragment
@@ -281,7 +294,7 @@ fun BottomNavigationView.navigateDeeplink(
                 fragmentManager,
                 fragmentTag,
                 navGraphId,
-                containerId
+                mContainerId
             )
 
         // Handle deeplink

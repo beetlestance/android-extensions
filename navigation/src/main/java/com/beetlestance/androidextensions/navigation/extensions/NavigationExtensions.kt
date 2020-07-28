@@ -138,9 +138,9 @@ private fun createNavOptions(
     return NavOptions.Builder()
         .setPopUpTo(popUpTo, isPopUpToInclusive)
         // Set Custom animation for action
-        .setEnterAnim(defaultNavOptions?.enterAnim ?: NAV_ENTER_ANIM)
-        .setExitAnim(defaultNavOptions?.exitAnim ?: NAV_EXIT_ANIM)
-        .setPopEnterAnim(defaultNavOptions?.popEnterAnim ?: NAV_POP_ENTER_ANIM)
-        .setPopExitAnim(defaultNavOptions?.popExitAnim ?: NAV_POP_EXIT_ANIM)
+        .setEnterAnim(defaultNavOptions?.enterAnim ?: mNavAnimations.enterAnimation)
+        .setExitAnim(defaultNavOptions?.exitAnim ?: mNavAnimations.exitAnimation)
+        .setPopEnterAnim(defaultNavOptions?.popEnterAnim ?: mNavAnimations.popEnterAnimation)
+        .setPopExitAnim(defaultNavOptions?.popExitAnim ?: mNavAnimations.popExitAnimation)
         .build()
 }

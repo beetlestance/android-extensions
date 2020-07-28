@@ -14,7 +14,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  *
  */
 open class DeeplinkNavigator {
-    var intentUpdated: Boolean = false
+    private var intentUpdated: Boolean = false
 
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     val observerForTopLevelNavigation = navigatorDeeplink.toSingleEvent()
@@ -57,8 +57,7 @@ open class DeeplinkNavigator {
     ) {
         this.intentUpdated = intentUpdated
 
-        if (intentUpdated)
-            clearBackStack(true)
+        if (intentUpdated) clearBackStack(true)
 
         setNavigatorWithDeeplinkIntent(intent, validateDeeplinkRequest)
         handleIntent(intent)
@@ -71,9 +70,7 @@ open class DeeplinkNavigator {
     ) {
         val deeplinkRequest = when {
             validateDeeplinkRequest != null -> validateDeeplinkRequest
-            intent?.data != null -> NavigateOnceDeeplinkRequest(
-                deeplink = intent.data!!
-            )
+            intent?.data != null -> NavigateOnceDeeplinkRequest(deeplink = intent.data!!)
             else -> null
         }
 
