@@ -11,26 +11,30 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
 import com.beetlestance.androidextensions.navigation.Navigator
 import com.beetlestance.androidextensions.navigation.data.NavAnimations
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
+// global variable to store user provided navGraphids
 internal var mNavGraphIds: List<Int> = emptyList()
     private set
 
+// global variable to store user provided containerId
 internal var mContainerId: Int = -1
     private set
 
+// global variable to store user provided custom animations
 internal var mNavAnimations: NavAnimations = NavAnimations()
     private set
 
 /**
+ * This function
+ *
  * @param navGraphIds the graph ids to setup with [BottomNavigationView]. [navGraphIds] should
  * be in the exact order in which the [BottomNavigationView] menu is displayed.
  * @param containerId The container in which [NavHostFragment] will attach to.
+ * @param bottomNavigationView BottomNavigationView to setup multiple NavHostFragment on.
  * @param navAnimations Set specific animation resources to run for the fragments that are
  * entering and exiting while selecting bottomNavigation item.
  * */
@@ -40,13 +44,7 @@ fun Fragment.setupMultipleBackStackBottomNavigation(
     bottomNavigationView: BottomNavigationView,
     navAnimations: NavAnimations = NavAnimations()
 ): LiveData<NavController> {
-
     storeNavDefaults(navGraphIds, containerId, navAnimations)
-
-    val deeplinkNavigator = Navigator.getInstance()
-
-    deeplinkNavigator.onDestinationChangeListener(findNavController())
-
     return setupMultipleBackStackBottomNavigation(bottomNavigationView, childFragmentManager)
 }
 

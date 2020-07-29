@@ -5,8 +5,8 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
+import com.beetlestance.androidextensions.navigation.extensions.backStackClearBehavior
 import com.beetlestance.androidextensions.navigation.extensions.handleIntentForDeeplink
-import com.beetlestance.androidextensions.navigation.extensions.setBackStackPopBehavior
 import com.beetlestance.androidextensions.navigation.extensions.setUpNavHostFragmentId
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -22,7 +22,11 @@ class MainActivity : AppCompatActivity() {
 
         setUpNavHostFragmentId(R.id.nav_host_fragment_container)
         handleIntentForDeeplink(false)
-        setBackStackPopBehavior(R.id.dashboardFragment)
+        backStackClearBehavior(
+            primaryFragmentId = R.id.dashboardFragment,
+            avoidNavigationForFragmentIds = listOf(R.id.notificationsFragment),
+            retainDeeplink = false
+        )
     }
 
     /**
