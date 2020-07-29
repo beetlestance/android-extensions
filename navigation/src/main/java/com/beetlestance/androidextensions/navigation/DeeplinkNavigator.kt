@@ -3,6 +3,7 @@ package com.beetlestance.androidextensions.navigation
 import android.content.Intent
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.extensions.navigateDeeplink
@@ -10,14 +11,20 @@ import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
 import com.beetlestance.androidextensions.navigation.util.toSingleEvent
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
+object DeeplinkNavigator {
+    fun navigate(request: NavigateOnceDeeplinkRequest) {
+        Navigator.getInstance().navigateToTopLevelDestination(request)
+    }
+}
+
 /**
- *
+ * This class can only have one instance
  */
-open class DeeplinkNavigator {
-
+internal class Navigator private constructor() {
     private var isDestinationChangedListenerAttached: Boolean = false
-
     internal var isBottomNavigationAttachedToActivity: Boolean = false
+    private var activityNavController: NavController? = null
+
 
     private var hasSetGraphHandledDeeplink: Boolean = false
         get() {
@@ -32,11 +39,10 @@ open class DeeplinkNavigator {
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     internal val navigateRequest = navigatorDeeplink.toSingleEvent()
 
-
     private val clearBackStack: MutableLiveData<Boolean> = MutableLiveData(false)
     internal val popToPrimaryFragment = clearBackStack.toSingleEvent()
 
-    fun navigateToTopLevelDestination(request: NavigateOnceDeeplinkRequest) {
+    internal fun navigateToTopLevelDestination(request: NavigateOnceDeeplinkRequest) {
         clearBackStack.postValue(resetStackBeforeNavigation)
         navigatorDeeplink.postValue(request)
     }
@@ -71,7 +77,6 @@ open class DeeplinkNavigator {
     internal fun handleDeeplinkIntent(
         intent: Intent?,
         intentUpdated: Boolean,
-        navController: NavController,
         validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
         handleIntent: (intent: Intent?) -> Unit = {}
     ) {
@@ -83,7 +88,7 @@ open class DeeplinkNavigator {
 
         deeplinkRequest?.let {
             if (isBottomNavigationAttachedToActivity.not()
-                && navController.graph.hasDeepLink(it.deeplink)
+                && activityNavController?.graph?.hasDeepLink(it.deeplink) == true
                 && intentUpdated.not()
             ) {
                 this.hasSetGraphHandledDeeplink = intentUpdated.not()
@@ -107,12 +112,21 @@ open class DeeplinkNavigator {
         }
     }
 
+    fun setActivityNavController(navController: NavController) {
+        activityNavController = navController
+    }
+
+
+    fun popBackStackObserver(primaryFragmentId: Int) = Observer<Boolean> {
+        activityNavController?.popBackStack(primaryFragmentId, false)
+    }
+
     companion object {
-        private var deeplinkNavigatorInstance: DeeplinkNavigator? = null
+        private var deeplinkNavigatorInstance: Navigator? = null
 
         // Provide single instance for [TopLevelNavigator]
-        fun getTopLevelNavigator(): DeeplinkNavigator {
-            return deeplinkNavigatorInstance ?: DeeplinkNavigator().also { navigator ->
+        fun getInstance(): Navigator {
+            return deeplinkNavigatorInstance ?: Navigator().also { navigator ->
                 deeplinkNavigatorInstance = navigator
             }
         }

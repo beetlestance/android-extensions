@@ -58,7 +58,7 @@ class HomeFragment : Fragment() {
         binding?.fragmentHomeOpenFeed?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
-            deeplinkNavigator.navigateToTopLevelDestination(
+            deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
                     deeplink = FEED_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,
@@ -70,7 +70,7 @@ class HomeFragment : Fragment() {
         binding?.fragmentHomeOpenNotification?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
-            deeplinkNavigator.navigateToTopLevelDestination(
+            deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
                     deeplink = NOTIFICATION_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,
@@ -82,7 +82,7 @@ class HomeFragment : Fragment() {
         binding?.fragmentHomeOpenSearch?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
-            deeplinkNavigator.navigateToTopLevelDestination(
+            deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
                     deeplink = SEARCH_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,

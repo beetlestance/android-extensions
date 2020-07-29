@@ -23,9 +23,6 @@ class DashboardFragment : Fragment() {
 
     private val viewModel: DashboardViewModel by viewModels()
 
-    @Inject
-    lateinit var deeplinkNavigator: DeeplinkNavigator
-
     private var binding: FragmentDashboardBinding? = null
     private var currentNavController: NavController? = null
 

@@ -7,7 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
+import com.beetlestance.androidextensions.navigation.Navigator
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -15,7 +15,7 @@ fun Fragment.handleDeeplink(
     bottomNavigationView: BottomNavigationView,
     request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
 ) {
-    val navigator = DeeplinkNavigator.getTopLevelNavigator()
+    val navigator = Navigator.getInstance()
     navigator.navigateRequest.observe(viewLifecycleOwner) {
         navigator.handleDeeplink(
             navController = findNavController(),
@@ -31,7 +31,7 @@ fun AppCompatActivity.handleDeeplink(
     bottomNavigationView: BottomNavigationView,
     request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
 ) {
-    val navigator = DeeplinkNavigator.getTopLevelNavigator()
+    val navigator = Navigator.getInstance()
     navigator.navigateRequest.observe(this) {
         navigator.handleDeeplink(
             navController = findNavController(navHostFragmentId),
@@ -42,45 +42,38 @@ fun AppCompatActivity.handleDeeplink(
     }
 }
 
-fun AppCompatActivity.handleMultiFragmentBackStack(
-    navHostFragmentId: Int,
+fun AppCompatActivity.setBackStackPopBehavior(
     primaryFragmentId: Int,
     avoidNavigationForFragmentIds: List<Int> = emptyList()
 ) {
+    val navigator = Navigator.getInstance()
     lifecycleScope.launchWhenStarted {
-        DeeplinkNavigator.getTopLevelNavigator().popToPrimaryFragment.observe(this@handleMultiFragmentBackStack) {
-            findNavController(navHostFragmentId).popBackStack(primaryFragmentId, false)
-        }
-    }
-}
-
-fun AppCompatActivity.handleDeeplinkIntent(
-    navHostFragmentId: Int,
-    validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
-    handleIntent: (intent: Intent?) -> Unit = {}
-) {
-    lifecycleScope.launchWhenStarted {
-        DeeplinkNavigator.getTopLevelNavigator().handleDeeplinkIntent(
-            intent = intent,
-            intentUpdated = false,
-            validateDeeplinkRequest = validateDeeplinkRequest,
-            handleIntent = handleIntent,
-            navController = findNavController(navHostFragmentId)
+        navigator.popToPrimaryFragment.observe(
+            this@setBackStackPopBehavior,
+            navigator.popBackStackObserver(primaryFragmentId)
         )
     }
 }
 
-fun AppCompatActivity.handleOnNewDeeplinkIntent(
-    intent: Intent?,
-    navHostFragmentId: Int,
+fun AppCompatActivity.handleIntentForDeeplink(
+    isIntentUpdated: Boolean,
     validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
     handleIntent: (intent: Intent?) -> Unit = {}
 ) {
-    DeeplinkNavigator.getTopLevelNavigator().handleDeeplinkIntent(
-        intent = intent,
-        intentUpdated = true,
-        validateDeeplinkRequest = validateDeeplinkRequest,
-        handleIntent = handleIntent,
-        navController = findNavController(navHostFragmentId)
-    )
+    lifecycleScope.launchWhenStarted {
+        Navigator.getInstance().handleDeeplinkIntent(
+            intent = intent,
+            intentUpdated = isIntentUpdated,
+            validateDeeplinkRequest = validateDeeplinkRequest,
+            handleIntent = handleIntent
+        )
+    }
+}
+
+
+fun AppCompatActivity.setUpNavHostFragmentId(viewId: Int) {
+    lifecycleScope.launchWhenStarted {
+        val controller = findNavController(viewId)
+        Navigator.getInstance().setActivityNavController(controller)
+    }
 }

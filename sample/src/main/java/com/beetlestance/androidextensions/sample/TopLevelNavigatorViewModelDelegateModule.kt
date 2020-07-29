@@ -14,6 +14,6 @@ object TopLevelNavigatorViewModelDelegateModule {
 
     @Singleton
     @Provides
-    fun provideTopLevelNavigator(): DeeplinkNavigator = DeeplinkNavigator.getTopLevelNavigator()
+    fun provideTopLevelNavigator() = DeeplinkNavigator
 }
 

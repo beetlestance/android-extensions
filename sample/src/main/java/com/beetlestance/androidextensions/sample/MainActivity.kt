@@ -5,9 +5,9 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
-import com.beetlestance.androidextensions.navigation.extensions.handleMultiFragmentBackStack
-import com.beetlestance.androidextensions.navigation.extensions.handleOnNewDeeplinkIntent
+import com.beetlestance.androidextensions.navigation.extensions.handleIntentForDeeplink
+import com.beetlestance.androidextensions.navigation.extensions.setBackStackPopBehavior
+import com.beetlestance.androidextensions.navigation.extensions.setUpNavHostFragmentId
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -19,8 +19,10 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.SampleApp_MainActivityTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        handleDeeplinkIntent(R.id.nav_host_fragment_container)
-        handleMultiFragmentBackStack(R.id.nav_host_fragment_container, R.id.dashboardFragment)
+
+        setUpNavHostFragmentId(R.id.nav_host_fragment_container)
+        handleIntentForDeeplink(false)
+        setBackStackPopBehavior(R.id.dashboardFragment)
     }
 
     /**
@@ -30,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleOnNewDeeplinkIntent(intent, R.id.nav_host_fragment_container)
+        handleIntentForDeeplink(true)
     }
 
 }

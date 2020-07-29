@@ -62,7 +62,7 @@ class NotificationsFragment : Fragment() {
         binding?.fragmentNotificationOpenFeed?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentNotificationInputArguments?.editText?.text?.toString() else null
-            deeplinkNavigator.navigateToTopLevelDestination(
+            deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
                     deeplink = FEED_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,
@@ -74,7 +74,7 @@ class NotificationsFragment : Fragment() {
         binding?.fragmentNotificationOpenNotification?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentNotificationInputArguments?.editText?.text?.toString() else null
-            deeplinkNavigator.navigateToTopLevelDestination(
+            deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
                     deeplink = HOME_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,
@@ -86,7 +86,7 @@ class NotificationsFragment : Fragment() {
         binding?.fragmentNotificationOpenSearch?.setOnClickListener {
             val input =
                 if (shouldUpdateArguments) binding?.fragmentNotificationInputArguments?.editText?.text?.toString() else null
-            deeplinkNavigator.navigateToTopLevelDestination(
+            deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
                     deeplink = SEARCH_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,

@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
+import com.beetlestance.androidextensions.navigation.Navigator
 import com.beetlestance.androidextensions.navigation.data.NavAnimations
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -42,7 +43,7 @@ fun Fragment.setupMultipleBackStackBottomNavigation(
 
     storeNavDefaults(navGraphIds, containerId, navAnimations)
 
-    val deeplinkNavigator = DeeplinkNavigator.getTopLevelNavigator()
+    val deeplinkNavigator = Navigator.getInstance()
 
     deeplinkNavigator.onDestinationChangeListener(findNavController())
 
@@ -65,8 +66,7 @@ fun AppCompatActivity.setupMultipleBackStackBottomNavigation(
 
     storeNavDefaults(navGraphIds, containerId, navAnimations)
 
-    val deeplinkNavigator = DeeplinkNavigator.getTopLevelNavigator()
-
+    val deeplinkNavigator = Navigator.getInstance()
     deeplinkNavigator.isBottomNavigationAttachedToActivity = true
 
     return setupMultipleBackStackBottomNavigation(bottomNavigationView, supportFragmentManager)
