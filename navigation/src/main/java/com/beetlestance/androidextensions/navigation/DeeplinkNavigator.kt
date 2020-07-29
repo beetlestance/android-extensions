@@ -182,7 +182,9 @@ internal class Navigator private constructor() {
             return
 
         if (shouldClearBackStack || forced) {
-            shouldNavigateForDeeplink = true
+            if (shouldClearBackStack) {
+                shouldNavigateForDeeplink = true
+            }
             activityNavController?.popBackStack(primaryFragmentId!!, false)
         } else {
             shouldNavigateForDeeplink = retainDeeplink
