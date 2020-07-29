@@ -177,15 +177,12 @@ internal class Navigator private constructor() {
      * Checks if backstack should be cleared or not
      */
     private fun clearBackStack(forced: Boolean) {
-        val fragmentId = primaryFragmentId
-            ?: throw IllegalAccessException(
-                "No primary fragment id is provided." +
-                        " Please make sure you have called setNavHostFragmentId() from activity"
-            )
+        if (primaryFragmentId == null)
+            return
 
         if (shouldClearBackStack || forced) {
             shouldNavigateForDeeplink = true
-            activityNavController?.popBackStack(fragmentId, false)
+            activityNavController?.popBackStack(primaryFragmentId!!, false)
         } else {
             shouldNavigateForDeeplink = retainDeeplink
         }

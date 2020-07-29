@@ -88,9 +88,9 @@ fun AppCompatActivity.backStackClearBehavior(
     retainDeeplink: Boolean = avoidNavigationForFragmentIds.isEmpty()
 ) {
     val navigator = Navigator.getInstance()
+    navigator.setPrimaryNavigationId(primaryFragmentId)
     navigator.retainFragmentIds = avoidNavigationForFragmentIds
     navigator.retainDeeplink = retainDeeplink
-    navigator.setPrimaryNavigationId(primaryFragmentId)
     navigator.onDestinationChangeListener()
 }
 

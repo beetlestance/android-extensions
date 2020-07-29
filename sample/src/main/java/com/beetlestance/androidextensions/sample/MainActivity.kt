@@ -21,12 +21,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         setUpNavHostFragmentId(R.id.nav_host_fragment_container)
-        handleIntentForDeeplink(false)
         backStackClearBehavior(
             primaryFragmentId = R.id.dashboardFragment,
             avoidNavigationForFragmentIds = listOf(R.id.notificationsFragment),
             retainDeeplink = false
         )
+        handleIntentForDeeplink(false)
     }
 
     /**
