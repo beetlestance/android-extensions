@@ -125,15 +125,11 @@ fun AppCompatActivity.handleNewIntentForDeeplink(
  * Issue: https://issuetracker.google.com/issues/142847973
  */
 fun AppCompatActivity.setNavigationPolicy(
-    @IdRes fragmentContainerViewId: Int,
     intent: Intent?,
     validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
     handleIntent: (intent: Intent?) -> Unit = {}
 ) {
     val navigator = Navigator.getInstance()
-    val navHostFragment =
-        supportFragmentManager.findFragmentById(fragmentContainerViewId) as NavHostFragment
-    val navController: NavController = navHostFragment.navController
 
     navigator.apply {
         handleDeeplinkIntent(
@@ -143,7 +139,6 @@ fun AppCompatActivity.setNavigationPolicy(
             handleIntent = handleIntent
         )
 
-        setActivityNavController(navController)
         navigator.onDestinationChangeListener()
     }
 }

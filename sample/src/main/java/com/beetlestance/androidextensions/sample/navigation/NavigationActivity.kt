@@ -23,10 +23,7 @@ class NavigationActivity : AppCompatActivity() {
         binding = ActivityNavigationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setNavigationPolicy(
-            fragmentContainerViewId = binding.navHostNavigationActivity.id,
-            intent = intent
-        )
+        setNavigationPolicy(intent = intent)
 
         if (savedInstanceState == null) {
             setUpBottomNavigation()
