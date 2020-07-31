@@ -22,6 +22,7 @@ class NavigationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityNavigationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         setNavigationPolicy(
             fragmentContainerViewId = binding.navHostNavigationActivity.id,
             intent = intent

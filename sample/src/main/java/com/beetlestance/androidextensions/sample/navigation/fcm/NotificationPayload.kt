@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.sample.fcm
+package com.beetlestance.androidextensions.sample.navigation.fcm
 
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
