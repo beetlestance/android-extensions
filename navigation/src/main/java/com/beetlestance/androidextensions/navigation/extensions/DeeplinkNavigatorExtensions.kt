@@ -1,6 +1,8 @@
 package com.beetlestance.androidextensions.navigation.extensions
 
 import android.content.Intent
+import androidx.annotation.IdRes
+import androidx.annotation.NavigationRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
@@ -86,11 +88,6 @@ fun AppCompatActivity.backStackClearBehavior(
     avoidNavigationForFragmentIds: List<Int> = emptyList(),
     retainDeeplink: Boolean = avoidNavigationForFragmentIds.isEmpty()
 ) {
-    val navigator = Navigator.getInstance()
-    navigator.setPrimaryNavigationId(primaryFragmentId)
-    navigator.retainFragmentIds = avoidNavigationForFragmentIds
-    navigator.retainDeeplink = retainDeeplink
-    navigator.onDestinationChangeListener()
 }
 
 /**
@@ -105,14 +102,13 @@ fun AppCompatActivity.backStackClearBehavior(
  * action like FirebaseDynamicLink.getInstance().getDynamicLink(intent).
  *
  */
-fun AppCompatActivity.handleIntentForDeeplink(
-    isIntentUpdated: Boolean,
+fun AppCompatActivity.handleNewIntentForDeeplink(
     validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
     handleIntent: (intent: Intent?) -> Unit = {}
 ) {
     Navigator.getInstance().handleDeeplinkIntent(
         intent = intent,
-        intentUpdated = isIntentUpdated,
+        intentUpdated = true,
         validateDeeplinkRequest = validateDeeplinkRequest,
         handleIntent = handleIntent
     )
@@ -128,10 +124,64 @@ fun AppCompatActivity.handleIntentForDeeplink(
  * Use NavHostFragment to find controller when used in activity onCreate
  * Issue: https://issuetracker.google.com/issues/142847973
  */
-fun AppCompatActivity.setUpNavHostFragmentId(viewId: Int) {
-    // Wait for activity to get into start state
-    // findNavController can only be accessed after activity is at least started
-    val navHostFragment = supportFragmentManager.findFragmentById(viewId) as NavHostFragment
+fun AppCompatActivity.setNavigationPolicy(
+    @IdRes fragmentContainerViewId: Int,
+    intent: Intent?,
+    validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
+    handleIntent: (intent: Intent?) -> Unit = {}
+) {
+    val navigator = Navigator.getInstance()
+    val navHostFragment =
+        supportFragmentManager.findFragmentById(fragmentContainerViewId) as NavHostFragment
     val navController: NavController = navHostFragment.navController
-    Navigator.getInstance().setActivityNavController(navController)
+
+    navigator.apply {
+        handleDeeplinkIntent(
+            intent = intent,
+            intentUpdated = false,
+            validateDeeplinkRequest = validateDeeplinkRequest,
+            handleIntent = handleIntent
+        )
+
+        setActivityNavController(navController)
+        navigator.onDestinationChangeListener()
+    }
 }
+
+fun AppCompatActivity.setNavigationPolicyWithPrimaryFragment(
+    @IdRes fragmentContainerViewId: Int,
+    @NavigationRes graphId: Int,
+    @IdRes primaryFragmentId: Int,
+    intent: Intent?,
+    validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
+    avoidNavigationForFragmentIds: List<Int> = emptyList(),
+    navigateOnceOnPrimaryFragment: Boolean = true,
+    handleIntent: (intent: Intent?) -> Unit = {}
+) {
+    val navigator = Navigator.getInstance()
+    val navHostFragment =
+        supportFragmentManager.findFragmentById(fragmentContainerViewId) as NavHostFragment
+    val navController: NavController = navHostFragment.navController
+
+    navigator.apply {
+        handleDeeplinkIntent(
+            intent = intent,
+            intentUpdated = false,
+            validateDeeplinkRequest = validateDeeplinkRequest,
+            handleIntent = handleIntent
+        )
+
+        setActivityNavController(navController)
+        setPrimaryNavigationId(primaryFragmentId)
+        retainFragmentIds = avoidNavigationForFragmentIds
+        retainDeeplink = navigateOnceOnPrimaryFragment
+        navigator.onDestinationChangeListener()
+    }
+
+    // setGraph after intvent is handled
+    if (graphId != null)
+        navController.setGraph(graphId)
+}
+
+
+

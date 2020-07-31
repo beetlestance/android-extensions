@@ -5,7 +5,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.observe
 import com.beetlestance.androidextensions.navigation.extensions.handleDeeplink
-import com.beetlestance.androidextensions.navigation.extensions.handleIntentForDeeplink
+import com.beetlestance.androidextensions.navigation.extensions.handleNewIntentForDeeplink
+import com.beetlestance.androidextensions.navigation.extensions.setNavigationPolicy
 import com.beetlestance.androidextensions.navigation.extensions.setupMultipleBackStackBottomNavigation
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.ActivityNavigationBinding
@@ -21,7 +22,10 @@ class NavigationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityNavigationBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        handleIntentForDeeplink(false)
+        setNavigationPolicy(
+            fragmentContainerViewId = binding.navHostNavigationActivity.id,
+            intent = intent
+        )
 
         if (savedInstanceState == null) {
             setUpBottomNavigation()
@@ -37,7 +41,7 @@ class NavigationActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleIntentForDeeplink(true)
+        handleNewIntentForDeeplink()
     }
 
 

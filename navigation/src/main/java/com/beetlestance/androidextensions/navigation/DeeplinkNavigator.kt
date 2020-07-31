@@ -54,18 +54,6 @@ internal class Navigator private constructor() {
     // Specifies if navigation from deeplink should happen or not
     private var shouldNavigateForDeeplink: Boolean = true
 
-    // This checks if setGraph from activity has already handled the deeplink or not
-    // In case of activity this check is not necessary
-    //
-    // The value is set to false whenever get is called
-    private var hasSetGraphHandledDeeplink: Boolean = false
-        get() {
-            val mHasSetGraphHandledDeeplink = field
-            return mHasSetGraphHandledDeeplink.also {
-                hasSetGraphHandledDeeplink = false
-            }
-        }
-
     // Livedata that will be observed for any upcoming deeplink request
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     internal val navigateRequest = navigatorDeeplink.toSingleEvent()
@@ -96,7 +84,7 @@ internal class Navigator private constructor() {
             //  checks if parent can navigate to the destination
             val isParentWorthyEnough = activityNavController?.graph?.hasDeepLink(request.deeplink)
             when {
-                isParentWorthyEnough == true && hasSetGraphHandledDeeplink.not() -> {
+                isParentWorthyEnough == true -> {
                     activityNavController?.navigateOnce(request)
                 }
                 else -> {
@@ -132,14 +120,7 @@ internal class Navigator private constructor() {
 
         deeplinkRequest?.let {
             // If the deeplink was handled by activity graph do not post it for navigation
-            if (isBottomNavigationAttachedToActivity.not()
-                && activityNavController?.graph?.hasDeepLink(it.deeplink) == true
-                && intentUpdated.not()
-            ) {
-                this.hasSetGraphHandledDeeplink = intentUpdated.not()
-            } else {
-                postForNavigation(it, false)
-            }
+            postForNavigation(it, false)
         }
 
         // run all the requirements specified before setting data to null
@@ -201,7 +182,7 @@ internal class Navigator private constructor() {
     /**
      * Sets primary navigation id
      */
-    fun setPrimaryNavigationId(primaryFragmentId: Int) {
+    fun setPrimaryNavigationId(primaryFragmentId: Int?) {
         this.primaryFragmentId = primaryFragmentId
     }
 
