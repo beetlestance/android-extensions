@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.sample.ui.dashboard
+package com.beetlestance.androidextensions.sample.navigation.ui.dashboard
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel

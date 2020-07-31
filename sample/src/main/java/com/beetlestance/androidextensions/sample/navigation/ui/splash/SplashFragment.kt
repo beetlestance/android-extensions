@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.sample.ui.splash
+package com.beetlestance.androidextensions.sample.navigation.ui.splash
 
 import android.os.Bundle
 import android.view.LayoutInflater

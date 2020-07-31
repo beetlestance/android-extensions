@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.sample.constants
+package com.beetlestance.androidextensions.sample.navigation.constants
 
 /*
 * Deeplink used in sample app for internal navigation from one flow to another flow

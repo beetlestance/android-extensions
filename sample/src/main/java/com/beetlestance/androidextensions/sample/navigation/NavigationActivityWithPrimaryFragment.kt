@@ -1,24 +1,22 @@
-package com.beetlestance.androidextensions.sample
+package com.beetlestance.androidextensions.sample.navigation
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import com.beetlestance.androidextensions.navigation.extensions.backStackClearBehavior
 import com.beetlestance.androidextensions.navigation.extensions.handleIntentForDeeplink
 import com.beetlestance.androidextensions.navigation.extensions.setUpNavHostFragmentId
+import com.beetlestance.androidextensions.sample.R
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-
-    private val viewModel: MainViewModel by viewModels()
+class NavigationActivityWithPrimaryFragment : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.SampleApp_MainActivityTheme)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_navigation_with_primary_fragment)
 
         setUpNavHostFragmentId(R.id.nav_host_fragment_container)
         backStackClearBehavior(

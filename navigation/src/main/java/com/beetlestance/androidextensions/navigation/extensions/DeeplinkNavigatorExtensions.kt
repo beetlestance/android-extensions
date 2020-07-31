@@ -54,7 +54,6 @@ fun Fragment.handleDeeplink(
  * @see handleIntentForDeeplink
  */
 fun AppCompatActivity.handleDeeplink(
-    navHostFragmentId: Int,
     bottomNavigationView: BottomNavigationView,
     request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
 ) {

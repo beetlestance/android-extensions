@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.sample
+package com.beetlestance.androidextensions.sample.navigation
 
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
 import dagger.Module
