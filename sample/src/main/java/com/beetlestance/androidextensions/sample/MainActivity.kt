@@ -5,8 +5,9 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import com.beetlestance.androidextensions.navigation.extensions.backStackClearBehavior
+import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy
 import com.beetlestance.androidextensions.navigation.extensions.handleIntentForDeeplink
+import com.beetlestance.androidextensions.navigation.extensions.setUpDeeplinkNavigationBehavior
 import com.beetlestance.androidextensions.navigation.extensions.setUpNavHostFragmentId
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,10 +22,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         setUpNavHostFragmentId(R.id.nav_host_fragment_container)
-        backStackClearBehavior(
+        setUpDeeplinkNavigationBehavior(
             primaryFragmentId = R.id.dashboardFragment,
-            avoidNavigationForFragmentIds = listOf(R.id.notificationsFragment),
-            retainDeeplink = false
+            fragmentBackStackBehavior = TOP_LEVEL_DESTINATION_BEHAVIOR
         )
         handleIntentForDeeplink(false)
     }
@@ -39,4 +39,9 @@ class MainActivity : AppCompatActivity() {
         handleIntentForDeeplink(true)
     }
 
+    companion object {
+        val TOP_LEVEL_DESTINATION_BEHAVIOR = mapOf(
+            R.id.notificationsFragment to DeeplinkNavigationPolicy.NAVIGATE_ON_EXIT
+        )
+    }
 }

@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
+import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy.RETAIN_AND_DISCARD
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.extensions.navigateDeeplink
 import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
@@ -35,24 +36,17 @@ internal class Navigator private constructor() {
     internal var isBottomNavigationAttachedToActivity: Boolean = false
 
     // This is navController for activity
-    private var activityNavController: NavController? = null
+    internal var activityNavController: NavController? = null
 
     // This is the fragment id of the fragment which contains the BottomNavigationView
     // In case of activity this will remain null.
     private var primaryFragmentId: Int? = null
 
     // List of fragment Ids which will not be poped from back stack when deeplink is clicked
-    var retainFragmentIds: List<Int> = emptyList()
-
-    // Flag species whether we should navigate to the destination once primary fragment is visible
-    // This is the case when use was on the one of retained fragment list destination.
-    var retainDeeplink: Boolean = true
+    var fragmentBackStackBehavior: Map<Int, DeeplinkNavigationPolicy> = mapOf()
 
     // Flag specifies we should clear the back stack or not based on retainFragmentIds and current destination
-    private var shouldClearBackStack: Boolean = false
-
-    // Specifies if navigation from deeplink should happen or not
-    private var shouldNavigateForDeeplink: Boolean = true
+    private var resetDestinationToPrimaryFragment: Boolean = false
 
     // This checks if setGraph from activity has already handled the deeplink or not
     // In case of activity this check is not necessary
@@ -70,6 +64,10 @@ internal class Navigator private constructor() {
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     internal val navigateRequest = navigatorDeeplink.toSingleEvent()
 
+
+    private val clearBackStack: MutableLiveData<Boolean> = MutableLiveData(false)
+    internal val popToPrimaryFragment = clearBackStack.toSingleEvent()
+
     /**
      * Contains the logic for navigating to a specific destination
      * This will be called everytime a deeplink navigation happens
@@ -79,12 +77,6 @@ internal class Navigator private constructor() {
         fragmentManager: FragmentManager,
         request: NavigateOnceDeeplinkRequest
     ) {
-        // Should not navigate if back stack should not be cleared and
-        // deeplink should not be retained
-        if (shouldNavigateForDeeplink.not()) {
-            return
-        }
-
         // If the BottomNavigationView is attached to activity, all the deeplinks will
         // be handled by BottomNavigationView itself
         if (isBottomNavigationAttachedToActivity) {
@@ -136,7 +128,7 @@ internal class Navigator private constructor() {
                 && activityNavController?.graph?.hasDeepLink(it.deeplink) == true
                 && intentUpdated.not()
             ) {
-                this.hasSetGraphHandledDeeplink = intentUpdated.not()
+                hasSetGraphHandledDeeplink = intentUpdated.not()
             } else {
                 postForNavigation(it, false)
             }
@@ -153,15 +145,14 @@ internal class Navigator private constructor() {
     @Synchronized
     internal fun onDestinationChangeListener() {
         // attach destination change listener only once
-        if (isDestinationChangedListenerAttached)
-            return
-        else
-            isDestinationChangedListenerAttached = true
+        if (isDestinationChangedListenerAttached) return
 
         activityNavController?.addOnDestinationChangedListener { _, destination, _ ->
             // check if back stack should be cleared on not
-            shouldClearBackStack = destination.id !in retainFragmentIds
-                    && destination.id != primaryFragmentId
+            resetDestinationToPrimaryFragment = destination.id != primaryFragmentId &&
+                    fragmentBackStackBehavior[destination.id] == DeeplinkNavigationPolicy.EXIT_AND_NAVIGATE
+        }.also {
+            isDestinationChangedListenerAttached = true
         }
     }
 
@@ -169,27 +160,26 @@ internal class Navigator private constructor() {
     /**
      * This function is used everytime we want to publish a value to navigation livedata
      */
-    fun postForNavigation(request: NavigateOnceDeeplinkRequest, forced: Boolean) {
-        clearBackStack(forced)
-        navigatorDeeplink.postValue(request)
+    fun postForNavigation(
+        request: NavigateOnceDeeplinkRequest,
+        ignoreBackStackNavigationPolicy: Boolean
+    ) {
+        if (isBottomNavigationAttachedToActivity) {
+            navigatorDeeplink.postValue(request)
+        } else {
+            clearBackStack(ignoreBackStackNavigationPolicy)
+            val currentDestination = activityNavController?.currentDestination?.id
+            if (currentDestination == null || fragmentBackStackBehavior[currentDestination] != RETAIN_AND_DISCARD) {
+                navigatorDeeplink.postValue(request)
+            }
+        }
     }
 
     /**
      * Checks if backstack should be cleared or not
      */
-    private fun clearBackStack(forced: Boolean) {
-        if (primaryFragmentId == null)
-            return
-
-        if (shouldClearBackStack || forced) {
-            if (shouldClearBackStack) {
-                shouldNavigateForDeeplink = true
-            }
-            activityNavController?.popBackStack(primaryFragmentId!!, false)
-        } else {
-            shouldNavigateForDeeplink = retainDeeplink
-        }
-
+    private fun clearBackStack(ignoreBackStackNavigationPolicy: Boolean) {
+        clearBackStack.postValue(ignoreBackStackNavigationPolicy || resetDestinationToPrimaryFragment)
     }
 
     /**
@@ -217,4 +207,10 @@ internal class Navigator private constructor() {
             }
         }
     }
+}
+
+enum class DeeplinkNavigationPolicy {
+    NAVIGATE_ON_EXIT,
+    RETAIN_AND_DISCARD,
+    EXIT_AND_NAVIGATE
 }

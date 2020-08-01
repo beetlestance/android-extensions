@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy
 import com.beetlestance.androidextensions.navigation.Navigator
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -54,7 +55,6 @@ fun Fragment.handleDeeplink(
  * @see handleIntentForDeeplink
  */
 fun AppCompatActivity.handleDeeplink(
-    navHostFragmentId: Int,
     bottomNavigationView: BottomNavigationView,
     request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
 ) {
@@ -74,24 +74,22 @@ fun AppCompatActivity.handleDeeplink(
  *
  * @param primaryFragmentId This is the fragment id from which [handleDeeplink] is called (BottomNavigationView
  * is also setup here)
- * @param avoidNavigationForFragmentIds List of all the fragment that should not be cleared for navigation. Like
+ * @param fragmentBackStackBehavior List of all the fragment that should not be cleared for navigation. Like
  * Login flow or any other important flow that should not be cleared.
- * @param retainDeeplink what to do with deeplink in case user was on destination that is included in
- * avoidNavigationForFragmentIds list. true: should navigate once user comes back to primary fragment
- * false: discard the navigation
  *
  * This should only be called from primary activity. Activity that hosts fragment with bottom navigation.
  */
-fun AppCompatActivity.backStackClearBehavior(
+fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
     primaryFragmentId: Int,
-    avoidNavigationForFragmentIds: List<Int> = emptyList(),
-    retainDeeplink: Boolean = avoidNavigationForFragmentIds.isEmpty()
+    fragmentBackStackBehavior: Map<Int, DeeplinkNavigationPolicy> = mapOf()
 ) {
     val navigator = Navigator.getInstance()
     navigator.setPrimaryNavigationId(primaryFragmentId)
-    navigator.retainFragmentIds = avoidNavigationForFragmentIds
-    navigator.retainDeeplink = retainDeeplink
+    navigator.fragmentBackStackBehavior = fragmentBackStackBehavior
     navigator.onDestinationChangeListener()
+    navigator.popToPrimaryFragment.observe(this) {
+        navigator.activityNavController?.popBackStack(primaryFragmentId, false)
+    }
 }
 
 /**
