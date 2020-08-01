@@ -94,7 +94,6 @@ fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
     navigator.setPrimaryNavigationId(primaryFragmentId, navHostFragmentId)
     navigator.fragmentBackStackBehavior = fragmentBackStackBehavior
 
-
     navController.addOnDestinationChangedListener(navigator.onDestinationChangeListener)
 
     navigator.popToPrimaryFragment.observe(this) {
@@ -122,7 +121,6 @@ fun AppCompatActivity.handleDeeplinkIntent(
     navigator.handleDeeplinkIntent(
         intent = intent,
         navController = navigator.parentNavHostContainerId?.let { getNavController(it) },
-        intentUpdated = false,
         validateDeeplinkRequest = validateDeeplinkRequest,
         handleIntent = handleIntent
     )
@@ -138,7 +136,7 @@ fun AppCompatActivity.handleDeeplinkIntent(
  * action like FirebaseDynamicLink.getInstance().getDynamicLink(intent).
  *
  */
-fun AppCompatActivity.handleOnNewDeeplinkIntent(
+/*fun AppCompatActivity.handleOnNewDeeplinkIntent(
     validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
     handleIntent: (intent: Intent?) -> Unit = {}
 ) {
@@ -146,11 +144,10 @@ fun AppCompatActivity.handleOnNewDeeplinkIntent(
     navigator.handleDeeplinkIntent(
         intent = intent,
         navController = navigator.parentNavHostContainerId?.let { getNavController(it) },
-        intentUpdated = true,
         validateDeeplinkRequest = validateDeeplinkRequest,
         handleIntent = handleIntent
     )
-}
+}*/
 
 /**
  * This setups the navController for navigating to top level i.e activity destinations

@@ -44,18 +44,6 @@ internal class Navigator private constructor() {
     // Flag specifies we should clear the back stack or not based on retainFragmentIds and current destination
     private var resetDestinationToPrimaryFragment: Boolean = false
 
-    // This checks if setGraph from activity has already handled the deeplink or not
-    // In case of activity this check is not necessary
-    //
-    // The value is set to false whenever get is called
-    private var hasSetGraphHandledDeeplink: Boolean = false
-        get() {
-            val mHasSetGraphHandledDeeplink = field
-            return mHasSetGraphHandledDeeplink.also {
-                hasSetGraphHandledDeeplink = false
-            }
-        }
-
     // LiveData that will be observed for any upcoming deeplink request
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     internal val navigateRequest = navigatorDeeplink.toSingleEvent()
@@ -85,10 +73,9 @@ internal class Navigator private constructor() {
         // If the BottomNavigationView is attached to activity, all the deeplinks will
         // be handled by BottomNavigationView itself
         //  checks if parent can navigate to the destination
-        val isParentWorthyEnough = navController?.graph?.hasDeepLink(request.deeplink)
-        when {
-            isParentWorthyEnough == true && hasSetGraphHandledDeeplink.not() -> {
-                navController.navigateOnce(request)
+        when (canNavControllerHandleDeeplink(navController, request)) {
+            true -> {
+                navController?.navigateOnce(request)
             }
             else -> {
                 bottomNavigationView.navigateDeeplink(
@@ -97,8 +84,12 @@ internal class Navigator private constructor() {
                 )
             }
         }
-
     }
+
+    private fun canNavControllerHandleDeeplink(
+        navController: NavController?,
+        request: NavigateOnceDeeplinkRequest
+    ) = navController?.graph?.hasDeepLink(request.deeplink) ?: false
 
     /**
      * Check the Intent for deeplink or any request provided by user
@@ -112,7 +103,6 @@ internal class Navigator private constructor() {
     internal fun handleDeeplinkIntent(
         intent: Intent?,
         navController: NavController?,
-        intentUpdated: Boolean,
         validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
         handleIntent: (intent: Intent?) -> Unit = {}
     ) {
@@ -123,15 +113,7 @@ internal class Navigator private constructor() {
         }
 
         deeplinkRequest?.let {
-            // If the deeplink was handled by activity graph do not post it for navigation
-            if (isBottomNavigationAttachedToActivity()) {
-                postForNavigation(it, null, false)
-            } else if (navController!!.graph.hasDeepLink(it.deeplink) && intentUpdated.not()) {
-                hasSetGraphHandledDeeplink = intentUpdated.not()
-            } else {
-                postForNavigation(it, navController, false)
-            }
-
+            postForNavigation(it, navController, false)
         }
 
         // run all the requirements specified before setting data to null

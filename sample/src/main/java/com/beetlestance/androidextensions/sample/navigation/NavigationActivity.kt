@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.observe
 import com.beetlestance.androidextensions.navigation.extensions.handleDeeplink
 import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
-import com.beetlestance.androidextensions.navigation.extensions.handleOnNewDeeplinkIntent
 import com.beetlestance.androidextensions.navigation.extensions.setupMultipleBackStackBottomNavigation
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.ActivityNavigationBinding
@@ -39,7 +38,7 @@ class NavigationActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleOnNewDeeplinkIntent()
+        handleDeeplinkIntent()
     }
 
 

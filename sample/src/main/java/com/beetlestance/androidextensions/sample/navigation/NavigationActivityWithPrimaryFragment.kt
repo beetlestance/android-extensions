@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy
 import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
-import com.beetlestance.androidextensions.navigation.extensions.handleOnNewDeeplinkIntent
 import com.beetlestance.androidextensions.navigation.extensions.setUpDeeplinkNavigationBehavior
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.ActivityNavigationWithPrimaryFragmentBinding
@@ -28,6 +27,7 @@ class NavigationActivityWithPrimaryFragment : AppCompatActivity() {
             fragmentBackStackBehavior = TOP_LEVEL_FRAGMENT_BEHAVIOR,
             graphId = R.navigation.nav_graph_main_activity
         )
+
         handleDeeplinkIntent()
     }
 
@@ -38,7 +38,7 @@ class NavigationActivityWithPrimaryFragment : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleOnNewDeeplinkIntent()
+        handleDeeplinkIntent()
     }
 
     companion object {
