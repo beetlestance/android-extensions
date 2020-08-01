@@ -173,8 +173,16 @@ internal class Navigator private constructor() {
     }
 }
 
+/**
+ * Navigation policy for deeplinks
+ */
 enum class DeeplinkNavigationPolicy {
+    // Whenever primary fragment comes to resume state, the navigation will take place
     NAVIGATE_ON_EXIT,
+
+    // The current flow will be retained and the deeplink will be discarded
     RETAIN_AND_DISCARD,
+
+    // The current flow will be exited to primary fragment and the navigation will happen
     EXIT_AND_NAVIGATE
 }
