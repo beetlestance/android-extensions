@@ -85,6 +85,7 @@ fun AppCompatActivity.handleDeeplink(
 fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
     navHostFragmentId: Int,
     primaryFragmentId: Int,
+    graphId: Int,
     fragmentBackStackBehavior: Map<Int, DeeplinkNavigationPolicy> = mapOf()
 ) {
     val navigator = Navigator.getInstance()
@@ -99,6 +100,8 @@ fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
     navigator.popToPrimaryFragment.observe(this) {
         navController.popBackStack(primaryFragmentId, false)
     }
+
+    navController.setGraph(graphId)
 }
 
 /**
