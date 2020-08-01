@@ -20,7 +20,7 @@ object DeeplinkNavigator {
      * @param request [NavigateOnceDeeplinkRequest] for navigating
      */
     fun navigate(request: NavigateOnceDeeplinkRequest) {
-        Navigator.getInstance().postForNavigation(request, true)
+        Navigator.getInstance().postForNavigation(request, null, true)
     }
 }
 
@@ -35,12 +35,13 @@ internal class Navigator private constructor() {
     // Flag to check if bottom navigation is attached to an activity or a fragment.
     internal var isBottomNavigationAttachedToActivity: Boolean = false
 
-    // This is navController for activity
-    internal var activityNavController: NavController? = null
-
     // This is the fragment id of the fragment which contains the BottomNavigationView
     // In case of activity this will remain null.
     private var primaryFragmentId: Int? = null
+
+    // This is the fragment id of the fragment which contains the BottomNavigationView
+    // In case of activity this will remain null.
+    internal var parentNavHostContainerId: Int? = null
 
     // List of fragment Ids which will not be poped from back stack when deeplink is clicked
     var fragmentBackStackBehavior: Map<Int, DeeplinkNavigationPolicy> = mapOf()
@@ -60,7 +61,7 @@ internal class Navigator private constructor() {
             }
         }
 
-    // Livedata that will be observed for any upcoming deeplink request
+    // LiveData that will be observed for any upcoming deeplink request
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
     internal val navigateRequest = navigatorDeeplink.toSingleEvent()
 
@@ -69,10 +70,19 @@ internal class Navigator private constructor() {
     internal val popToPrimaryFragment = clearBackStack.toSingleEvent()
 
     /**
+     * Sets primary navigation id
+     */
+    fun setPrimaryNavigationId(primaryFragmentId: Int, parentNavHostContainerId: Int) {
+        this.parentNavHostContainerId = parentNavHostContainerId
+        this.primaryFragmentId = primaryFragmentId
+    }
+
+    /**
      * Contains the logic for navigating to a specific destination
      * This will be called everytime a deeplink navigation happens
      */
     internal fun handleDeeplink(
+        navController: NavController?,
         bottomNavigationView: BottomNavigationView,
         fragmentManager: FragmentManager,
         request: NavigateOnceDeeplinkRequest
@@ -86,10 +96,10 @@ internal class Navigator private constructor() {
             )
         } else {
             //  checks if parent can navigate to the destination
-            val isParentWorthyEnough = activityNavController?.graph?.hasDeepLink(request.deeplink)
+            val isParentWorthyEnough = navController?.graph?.hasDeepLink(request.deeplink)
             when {
                 isParentWorthyEnough == true && hasSetGraphHandledDeeplink.not() -> {
-                    activityNavController?.navigateOnce(request)
+                    navController.navigateOnce(request)
                 }
                 else -> {
                     bottomNavigationView.navigateDeeplink(
@@ -112,6 +122,7 @@ internal class Navigator private constructor() {
      */
     internal fun handleDeeplinkIntent(
         intent: Intent?,
+        navController: NavController?,
         intentUpdated: Boolean,
         validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
         handleIntent: (intent: Intent?) -> Unit = {}
@@ -124,14 +135,14 @@ internal class Navigator private constructor() {
 
         deeplinkRequest?.let {
             // If the deeplink was handled by activity graph do not post it for navigation
-            if (isBottomNavigationAttachedToActivity.not()
-                && activityNavController?.graph?.hasDeepLink(it.deeplink) == true
-                && intentUpdated.not()
-            ) {
+            if (isBottomNavigationAttachedToActivity) {
+                postForNavigation(it, null, false)
+            } else if (navController!!.graph.hasDeepLink(it.deeplink) && intentUpdated.not()) {
                 hasSetGraphHandledDeeplink = intentUpdated.not()
             } else {
-                postForNavigation(it, false)
+                postForNavigation(it, navController, false)
             }
+
         }
 
         // run all the requirements specified before setting data to null
@@ -143,11 +154,11 @@ internal class Navigator private constructor() {
      * Add a destination changed listener on activity controller
      */
     @Synchronized
-    internal fun onDestinationChangeListener() {
+    internal fun onDestinationChangeListener(navController: NavController) {
         // attach destination change listener only once
         if (isDestinationChangedListenerAttached) return
 
-        activityNavController?.addOnDestinationChangedListener { _, destination, _ ->
+        navController.addOnDestinationChangedListener { _, destination, _ ->
             // check if back stack should be cleared on not
             resetDestinationToPrimaryFragment = destination.id != primaryFragmentId &&
                     fragmentBackStackBehavior[destination.id] == DeeplinkNavigationPolicy.EXIT_AND_NAVIGATE
@@ -162,13 +173,14 @@ internal class Navigator private constructor() {
      */
     fun postForNavigation(
         request: NavigateOnceDeeplinkRequest,
+        navController: NavController?,
         ignoreBackStackNavigationPolicy: Boolean
     ) {
         if (isBottomNavigationAttachedToActivity) {
             navigatorDeeplink.postValue(request)
         } else {
             clearBackStack(ignoreBackStackNavigationPolicy)
-            val currentDestination = activityNavController?.currentDestination?.id
+            val currentDestination = navController?.currentDestination?.id
             if (currentDestination == null || fragmentBackStackBehavior[currentDestination] != RETAIN_AND_DISCARD) {
                 navigatorDeeplink.postValue(request)
             }
@@ -180,21 +192,6 @@ internal class Navigator private constructor() {
      */
     private fun clearBackStack(ignoreBackStackNavigationPolicy: Boolean) {
         clearBackStack.postValue(ignoreBackStackNavigationPolicy || resetDestinationToPrimaryFragment)
-    }
-
-    /**
-     * Sets the activityNavController for later use
-     */
-    fun setActivityNavController(navController: NavController) {
-        activityNavController = navController
-    }
-
-
-    /**
-     * Sets primary navigation id
-     */
-    fun setPrimaryNavigationId(primaryFragmentId: Int) {
-        this.primaryFragmentId = primaryFragmentId
     }
 
     companion object {

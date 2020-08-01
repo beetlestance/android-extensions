@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy
 import com.beetlestance.androidextensions.navigation.Navigator
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
@@ -23,7 +24,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
  * This function observe for navigate request[NavigateOnceDeeplinkRequest] that may be originated
  * from anywhere in the app through function `DeeplinkNavigator.navigate()` or handleIntentForDeeplink
  * in your launcher Activity.
- * @see handleIntentForDeeplink
+ * @see handleOnNewDeeplinkIntent
  */
 fun Fragment.handleDeeplink(
     bottomNavigationView: BottomNavigationView,
@@ -32,6 +33,7 @@ fun Fragment.handleDeeplink(
     val navigator = Navigator.getInstance()
     navigator.navigateRequest.observe(viewLifecycleOwner) {
         navigator.handleDeeplink(
+            navController = findNavController(),
             bottomNavigationView = bottomNavigationView,
             fragmentManager = childFragmentManager,
             request = it.request()
@@ -52,7 +54,7 @@ fun Fragment.handleDeeplink(
  * This function observe for navigate request[NavigateOnceDeeplinkRequest] that may be originated
  * from anywhere in the app through function `DeeplinkNavigator.navigate()` or handleIntentForDeeplink
  * in your launcher Activity.
- * @see handleIntentForDeeplink
+ * @see handleOnNewDeeplinkIntent
  */
 fun AppCompatActivity.handleDeeplink(
     bottomNavigationView: BottomNavigationView,
@@ -61,6 +63,7 @@ fun AppCompatActivity.handleDeeplink(
     val navigator = Navigator.getInstance()
     navigator.navigateRequest.observe(this) {
         navigator.handleDeeplink(
+            navController = null,
             bottomNavigationView = bottomNavigationView,
             fragmentManager = supportFragmentManager,
             request = it.request()
@@ -80,15 +83,21 @@ fun AppCompatActivity.handleDeeplink(
  * This should only be called from primary activity. Activity that hosts fragment with bottom navigation.
  */
 fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
+    navHostFragmentId: Int,
     primaryFragmentId: Int,
     fragmentBackStackBehavior: Map<Int, DeeplinkNavigationPolicy> = mapOf()
 ) {
     val navigator = Navigator.getInstance()
-    navigator.setPrimaryNavigationId(primaryFragmentId)
+    val navController = getNavController(navHostFragmentId)
+
+    navigator.setPrimaryNavigationId(primaryFragmentId, navHostFragmentId)
     navigator.fragmentBackStackBehavior = fragmentBackStackBehavior
-    navigator.onDestinationChangeListener()
+
+
+    navigator.onDestinationChangeListener(navController)
+
     navigator.popToPrimaryFragment.observe(this) {
-        navigator.activityNavController?.popBackStack(primaryFragmentId, false)
+        navController.popBackStack(primaryFragmentId, false)
     }
 }
 
@@ -96,22 +105,45 @@ fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
  * Activity extension for retaining the deeplink and navigating once user lands on primary fragment.
  * Remember this function set the intent.data = null to only navigate to destination once.
  *
- * @param isIntentUpdated this specifies that whether the intent was launching intent for activity or
- * intent was updated via onNewIntent().
  * @param validateDeeplinkRequest: [NavigateOnceDeeplinkRequest] to use. User can pass validated deeplink.
  * example: if user is not logged in redirect the user to login deeplink. The original deeplink is discarded.
  * @param handleIntent returns the activity with original intent before setting it to null. So that user can perform
  * action like FirebaseDynamicLink.getInstance().getDynamicLink(intent).
  *
  */
-fun AppCompatActivity.handleIntentForDeeplink(
-    isIntentUpdated: Boolean,
+fun AppCompatActivity.handleDeeplinkIntent(
     validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
     handleIntent: (intent: Intent?) -> Unit = {}
 ) {
-    Navigator.getInstance().handleDeeplinkIntent(
+    val navigator = Navigator.getInstance()
+    navigator.handleDeeplinkIntent(
         intent = intent,
-        intentUpdated = isIntentUpdated,
+        navController = navigator.parentNavHostContainerId?.let { getNavController(it) },
+        intentUpdated = false,
+        validateDeeplinkRequest = validateDeeplinkRequest,
+        handleIntent = handleIntent
+    )
+}
+
+/**
+ * Activity extension for retaining the deeplink and navigating once user lands on primary fragment.
+ * Remember this function set the intent.data = null to only navigate to destination once.
+ *
+ * @param validateDeeplinkRequest: [NavigateOnceDeeplinkRequest] to use. User can pass validated deeplink.
+ * example: if user is not logged in redirect the user to login deeplink. The original deeplink is discarded.
+ * @param handleIntent returns the activity with original intent before setting it to null. So that user can perform
+ * action like FirebaseDynamicLink.getInstance().getDynamicLink(intent).
+ *
+ */
+fun AppCompatActivity.handleOnNewDeeplinkIntent(
+    validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
+    handleIntent: (intent: Intent?) -> Unit = {}
+) {
+    val navigator = Navigator.getInstance()
+    navigator.handleDeeplinkIntent(
+        intent = intent,
+        navController = navigator.parentNavHostContainerId?.let { getNavController(it) },
+        intentUpdated = true,
         validateDeeplinkRequest = validateDeeplinkRequest,
         handleIntent = handleIntent
     )
@@ -127,10 +159,9 @@ fun AppCompatActivity.handleIntentForDeeplink(
  * Use NavHostFragment to find controller when used in activity onCreate
  * Issue: https://issuetracker.google.com/issues/142847973
  */
-fun AppCompatActivity.setUpNavHostFragmentId(viewId: Int) {
+private fun AppCompatActivity.getNavController(viewId: Int): NavController {
     // Wait for activity to get into start state
     // findNavController can only be accessed after activity is at least started
     val navHostFragment = supportFragmentManager.findFragmentById(viewId) as NavHostFragment
-    val navController: NavController = navHostFragment.navController
-    Navigator.getInstance().setActivityNavController(navController)
+    return navHostFragment.navController
 }

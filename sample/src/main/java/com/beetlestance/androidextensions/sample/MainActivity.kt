@@ -6,9 +6,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy
-import com.beetlestance.androidextensions.navigation.extensions.handleIntentForDeeplink
+import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
+import com.beetlestance.androidextensions.navigation.extensions.handleOnNewDeeplinkIntent
 import com.beetlestance.androidextensions.navigation.extensions.setUpDeeplinkNavigationBehavior
-import com.beetlestance.androidextensions.navigation.extensions.setUpNavHostFragmentId
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,12 +21,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setUpNavHostFragmentId(R.id.nav_host_fragment_container)
         setUpDeeplinkNavigationBehavior(
+            navHostFragmentId = R.id.nav_host_fragment_container,
             primaryFragmentId = R.id.dashboardFragment,
             fragmentBackStackBehavior = TOP_LEVEL_DESTINATION_BEHAVIOR
         )
-        handleIntentForDeeplink(false)
+        handleDeeplinkIntent()
     }
 
     /**
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleIntentForDeeplink(true)
+        handleOnNewDeeplinkIntent()
     }
 
     companion object {
