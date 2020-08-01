@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
+import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy
 import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
 import com.beetlestance.androidextensions.navigation.extensions.handleOnNewDeeplinkIntent
 import com.beetlestance.androidextensions.navigation.extensions.setUpDeeplinkNavigationBehavior
@@ -24,6 +25,7 @@ class NavigationActivityWithPrimaryFragment : AppCompatActivity() {
         setUpDeeplinkNavigationBehavior(
             navHostFragmentId = binding.navHostFragmentContainer.id,
             primaryFragmentId = R.id.dashboardFragment,
+            fragmentBackStackBehavior = TOP_LEVEL_FRAGMENT_BEHAVIOR,
             graphId = R.navigation.nav_graph_main_activity
         )
         handleDeeplinkIntent()
@@ -38,5 +40,12 @@ class NavigationActivityWithPrimaryFragment : AppCompatActivity() {
         setIntent(intent)
         handleOnNewDeeplinkIntent()
     }
+
+    companion object {
+        val TOP_LEVEL_FRAGMENT_BEHAVIOR: Map<Int, DeeplinkNavigationPolicy> = mapOf(
+            R.id.notificationsFragment to DeeplinkNavigationPolicy.EXIT_AND_NAVIGATE
+        )
+    }
+
 
 }
