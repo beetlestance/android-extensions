@@ -64,9 +64,6 @@ fun AppCompatActivity.setupMultipleBackStackBottomNavigation(
 
     storeNavDefaults(navGraphIds, containerId, navAnimations)
 
-    val deeplinkNavigator = Navigator.getInstance()
-    deeplinkNavigator.isBottomNavigationAttachedToActivity = true
-
     return setupMultipleBackStackBottomNavigation(bottomNavigationView, supportFragmentManager)
 }
 

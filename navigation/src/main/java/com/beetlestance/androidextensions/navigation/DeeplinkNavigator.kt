@@ -30,9 +30,6 @@ object DeeplinkNavigator {
  */
 internal class Navigator private constructor() {
 
-    // Flag to check if bottom navigation is attached to an activity or a fragment.
-    internal var isBottomNavigationAttachedToActivity: Boolean = false
-
     // This is the fragment id of the fragment which contains the BottomNavigationView
     // In case of activity this will remain null.
     private var primaryFragmentId: Int? = null
@@ -87,26 +84,20 @@ internal class Navigator private constructor() {
     ) {
         // If the BottomNavigationView is attached to activity, all the deeplinks will
         // be handled by BottomNavigationView itself
-        if (isBottomNavigationAttachedToActivity) {
-            bottomNavigationView.navigateDeeplink(
-                request = request,
-                fragmentManager = fragmentManager
-            )
-        } else {
-            //  checks if parent can navigate to the destination
-            val isParentWorthyEnough = navController?.graph?.hasDeepLink(request.deeplink)
-            when {
-                isParentWorthyEnough == true && hasSetGraphHandledDeeplink.not() -> {
-                    navController.navigateOnce(request)
-                }
-                else -> {
-                    bottomNavigationView.navigateDeeplink(
-                        request = request,
-                        fragmentManager = fragmentManager
-                    )
-                }
+        //  checks if parent can navigate to the destination
+        val isParentWorthyEnough = navController?.graph?.hasDeepLink(request.deeplink)
+        when {
+            isParentWorthyEnough == true && hasSetGraphHandledDeeplink.not() -> {
+                navController.navigateOnce(request)
+            }
+            else -> {
+                bottomNavigationView.navigateDeeplink(
+                    request = request,
+                    fragmentManager = fragmentManager
+                )
             }
         }
+
     }
 
     /**
@@ -133,7 +124,7 @@ internal class Navigator private constructor() {
 
         deeplinkRequest?.let {
             // If the deeplink was handled by activity graph do not post it for navigation
-            if (isBottomNavigationAttachedToActivity) {
+            if (isBottomNavigationAttachedToActivity()) {
                 postForNavigation(it, null, false)
             } else if (navController!!.graph.hasDeepLink(it.deeplink) && intentUpdated.not()) {
                 hasSetGraphHandledDeeplink = intentUpdated.not()
@@ -167,7 +158,7 @@ internal class Navigator private constructor() {
         navController: NavController?,
         ignoreBackStackNavigationPolicy: Boolean
     ) {
-        if (isBottomNavigationAttachedToActivity) {
+        if (isBottomNavigationAttachedToActivity()) {
             navigatorDeeplink.postValue(request)
         } else {
             clearBackStack(ignoreBackStackNavigationPolicy)
@@ -184,6 +175,9 @@ internal class Navigator private constructor() {
     private fun clearBackStack(ignoreBackStackNavigationPolicy: Boolean) {
         clearBackStack.postValue(ignoreBackStackNavigationPolicy || resetDestinationToPrimaryFragment)
     }
+
+    // Flag to check if bottom navigation is attached to an activity or a fragment.
+    private fun isBottomNavigationAttachedToActivity(): Boolean = parentNavHostContainerId == null
 
     companion object {
         private var deeplinkNavigatorInstance: Navigator? = null
