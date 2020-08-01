@@ -91,6 +91,15 @@ fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
     val navigator = Navigator.getInstance()
     val navController = getNavController(navHostFragmentId)
 
+    // extract deeplink so that setGraph can not manually handle the deeplink
+    val deeplink = intent.data
+    intent.data = null
+    navController.setGraph(graphId)
+
+    // once setGraph is called set the deeplink again so that validations can be prformed
+    // we set the data to null internally
+    intent.data = deeplink
+
     navigator.setPrimaryNavigationId(primaryFragmentId, navHostFragmentId)
     navigator.fragmentBackStackBehavior = fragmentBackStackBehavior
 
@@ -99,8 +108,6 @@ fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
     navigator.popToPrimaryFragment.observe(this) {
         navController.popBackStack(primaryFragmentId, false)
     }
-
-    navController.setGraph(graphId)
 }
 
 /**

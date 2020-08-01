@@ -15,6 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class NavigationActivityWithPrimaryFragment : AppCompatActivity() {
 
     lateinit var binding: ActivityNavigationWithPrimaryFragmentBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.SampleApp_MainActivityTheme)
         super.onCreate(savedInstanceState)
