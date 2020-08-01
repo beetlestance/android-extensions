@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/fragment_home_root"
-    tools:context=".ui.dashboard.home.HomeFragment">
+    tools:context=".navigation.ui.dashboard.home.HomeFragment">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/fragment_home_arguments"

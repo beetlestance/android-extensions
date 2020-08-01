@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.sample.ui.notifications
+package com.beetlestance.androidextensions.sample.navigation.ui.dashboard.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,25 +10,22 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
-import com.beetlestance.androidextensions.sample.constants.FEED_DEEPLINK
-import com.beetlestance.androidextensions.sample.constants.HOME_DEEPLINK
-import com.beetlestance.androidextensions.sample.constants.SEARCH_DEEPLINK
-import com.beetlestance.androidextensions.sample.databinding.FragmentNotificationsBinding
+import com.beetlestance.androidextensions.sample.navigation.constants.FEED_DEEPLINK
+import com.beetlestance.androidextensions.sample.navigation.constants.NOTIFICATION_DEEPLINK
+import com.beetlestance.androidextensions.sample.navigation.constants.SEARCH_DEEPLINK
+import com.beetlestance.androidextensions.sample.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NotificationsFragment : Fragment() {
+class HomeFragment : Fragment() {
 
-    private val viewModel: NotificationsViewModel by viewModels()
-    private val args: NotificationsFragmentArgs by navArgs()
+    private val viewModel: HomeViewModel by viewModels()
+    private val args: HomeFragmentArgs by navArgs()
+    private var binding: FragmentHomeBinding? = null
 
     @Inject
     lateinit var deeplinkNavigator: DeeplinkNavigator
-
-    private var binding: FragmentNotificationsBinding? = null
-
-    private fun requireBinding(): FragmentNotificationsBinding = requireNotNull(binding)
 
     var multipleInstancesAllowed: Boolean = false
     var shouldUpdateArguments: Boolean = false
@@ -37,31 +34,30 @@ class NotificationsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentNotificationsBinding.inflate(inflater, container, false)
-        return requireBinding().root
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         args.input?.let {
-            binding?.fragmentNotificationArguments?.text = "Arguments: $it"
+            binding?.fragmentHomeArguments?.text = "Arguments: $it"
         }
 
-        binding?.fragmentNotificationMultipleInstance?.setOnCheckedChangeListener { _, isChecked ->
+        binding?.fragmentHomeMultipleInstance?.setOnCheckedChangeListener { _, isChecked ->
             multipleInstancesAllowed = isChecked
             if (isChecked) {
-                binding?.fragmentNotificationUpdateArguments?.isChecked = true
+                binding?.fragmentHomeUpdateArguments?.isChecked = true
             }
         }
 
-        binding?.fragmentNotificationUpdateArguments?.setOnCheckedChangeListener { _, isChecked ->
+        binding?.fragmentHomeUpdateArguments?.setOnCheckedChangeListener { _, isChecked ->
             shouldUpdateArguments = isChecked
         }
 
-        binding?.fragmentNotificationOpenFeed?.setOnClickListener {
+        binding?.fragmentHomeOpenFeed?.setOnClickListener {
             val input =
-                if (shouldUpdateArguments) binding?.fragmentNotificationInputArguments?.editText?.text?.toString() else null
+                if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
             deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
                     deeplink = FEED_DEEPLINK.format(input).toUri(),
@@ -71,21 +67,21 @@ class NotificationsFragment : Fragment() {
             )
         }
 
-        binding?.fragmentNotificationOpenNotification?.setOnClickListener {
+        binding?.fragmentHomeOpenNotification?.setOnClickListener {
             val input =
-                if (shouldUpdateArguments) binding?.fragmentNotificationInputArguments?.editText?.text?.toString() else null
+                if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
             deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
-                    deeplink = HOME_DEEPLINK.format(input).toUri(),
+                    deeplink = NOTIFICATION_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,
                     allowMultipleInstance = multipleInstancesAllowed
                 )
             )
         }
 
-        binding?.fragmentNotificationOpenSearch?.setOnClickListener {
+        binding?.fragmentHomeOpenSearch?.setOnClickListener {
             val input =
-                if (shouldUpdateArguments) binding?.fragmentNotificationInputArguments?.editText?.text?.toString() else null
+                if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
             deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
                     deeplink = SEARCH_DEEPLINK.format(input).toUri(),
@@ -95,5 +91,4 @@ class NotificationsFragment : Fragment() {
             )
         }
     }
-
 }

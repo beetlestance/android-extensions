@@ -1,13 +1,13 @@
-package com.beetlestance.androidextensions.sample.fcm
+package com.beetlestance.androidextensions.sample.navigation.fcm
 
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.beetlestance.androidextensions.sample.MainActivity
-import com.beetlestance.androidextensions.sample.constants.FEED_DEEPLINK
-import com.beetlestance.androidextensions.sample.constants.NOTIFICATION_DEEPLINK
+import com.beetlestance.androidextensions.sample.navigation.NavigationActivityWithPrimaryFragment
+import com.beetlestance.androidextensions.sample.navigation.constants.FEED_DEEPLINK
+import com.beetlestance.androidextensions.sample.navigation.constants.NOTIFICATION_DEEPLINK
 
 //  Notify to pull new feed
 const val ACTION_FEED_UPDATED: String = "FEED UPDATED"
@@ -60,5 +60,5 @@ private fun deeplinkArgs(action: String): String {
 * create PendingIntent for given deeplink
 * */
 private fun Context.createNotifyIntent(deepLink: Uri?): Intent? {
-    return Intent(this, MainActivity::class.java).apply { data = deepLink }
+    return Intent(this, NavigationActivityWithPrimaryFragment::class.java).apply { data = deepLink }
 }

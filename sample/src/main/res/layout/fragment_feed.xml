@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:id="@+id/fragment_feed_root"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.dashboard.feed.FeedFragment">
+    tools:context=".navigation.ui.dashboard.feed.FeedFragment">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/fragment_feed_arguments"

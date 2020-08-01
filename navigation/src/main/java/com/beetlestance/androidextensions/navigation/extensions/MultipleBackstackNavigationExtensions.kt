@@ -110,10 +110,7 @@ private fun setupMultipleBackStackBottomNavigation(
     // See the link below for the changes in Navigation library.
     // https://android.googlesource.com/platform/frameworks/support/+/523601f023afb95f861e94c149c50e4962ea42e3
     mNavGraphIds.reversed().forEachIndexed { index, navGraphId ->
-        val fragmentTag: String =
-            getFragmentTag(
-                index
-            )
+        val fragmentTag: String = getFragmentTag(index)
 
         // Find or create the Navigation host fragment
         val navHostFragment =

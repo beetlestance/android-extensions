@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.sample.ui.notifications
+package com.beetlestance.androidextensions.sample.navigation.ui.notifications
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel

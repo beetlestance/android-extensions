@@ -11,22 +11,39 @@
         android:supportsRtl="true"
         android:theme="@style/MyTheme.DayNight">
 
-        <activity
-            android:name=".MainActivity"
-            android:launchMode="singleTask"
-            android:theme="@style/SampleApp.SplashTheme">
+        <activity-alias
+            android:name=".Launcher"
+            android:label="@string/app_name"
+            android:targetActivity=".navigation.NavigationActivity">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity-alias>
 
-            <nav-graph android:value="@navigation/nav_graph_main_activity"/>
-            <nav-graph android:value="@navigation/nav_graph_feed"/>
-            <nav-graph android:value="@navigation/nav_graph_home"/>
-            <nav-graph android:value="@navigation/nav_graph_search"/>
+        <activity
+            android:name=".navigation.NavigationActivityWithPrimaryFragment"
+            android:launchMode="singleTask"
+            android:theme="@style/SampleApp.SplashTheme">
+
+            <nav-graph android:value="@navigation/nav_graph_main_activity" />
+            <nav-graph android:value="@navigation/nav_graph_feed" />
+            <nav-graph android:value="@navigation/nav_graph_home" />
+            <nav-graph android:value="@navigation/nav_graph_search" />
         </activity>
-        <service android:name=".fcm.MyFirebaseMessagingService" />
+
+        <activity
+            android:name=".navigation.NavigationActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/SampleApp.SplashTheme">
+
+            <nav-graph android:value="@navigation/nav_graph_feed" />
+            <nav-graph android:value="@navigation/nav_graph_home" />
+            <nav-graph android:value="@navigation/nav_graph_search" />
+        </activity>
+
+        <service android:name="com.beetlestance.androidextensions.sample.navigation.fcm.MyFirebaseMessagingService" />
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.sample.fcm
+package com.beetlestance.androidextensions.sample.navigation.fcm
 
 import android.app.Notification
 import android.app.PendingIntent
