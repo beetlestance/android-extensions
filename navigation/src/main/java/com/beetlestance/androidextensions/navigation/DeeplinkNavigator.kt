@@ -29,8 +29,6 @@ object DeeplinkNavigator {
  * This class can only have one instance.
  */
 internal class Navigator private constructor() {
-    // We do no want to attach multiple destination change listener
-    private var isDestinationChangedListenerAttached: Boolean = false
 
     // Flag to check if bottom navigation is attached to an activity or a fragment.
     internal var isBottomNavigationAttachedToActivity: Boolean = false
@@ -153,19 +151,12 @@ internal class Navigator private constructor() {
     /**
      * Add a destination changed listener on activity controller
      */
-    @Synchronized
-    internal fun onDestinationChangeListener(navController: NavController) {
-        // attach destination change listener only once
-        if (isDestinationChangedListenerAttached) return
-
-        navController.addOnDestinationChangedListener { _, destination, _ ->
+    internal val onDestinationChangeListener =
+        NavController.OnDestinationChangedListener { _, destination, _ ->
             // check if back stack should be cleared on not
             resetDestinationToPrimaryFragment = destination.id != primaryFragmentId &&
                     fragmentBackStackBehavior[destination.id] == DeeplinkNavigationPolicy.EXIT_AND_NAVIGATE
-        }.also {
-            isDestinationChangedListenerAttached = true
         }
-    }
 
 
     /**

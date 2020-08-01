@@ -95,7 +95,7 @@ fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
     navigator.fragmentBackStackBehavior = fragmentBackStackBehavior
 
 
-    navigator.onDestinationChangeListener(navController)
+    navController.addOnDestinationChangedListener(navigator.onDestinationChangeListener)
 
     navigator.popToPrimaryFragment.observe(this) {
         navController.popBackStack(primaryFragmentId, false)
