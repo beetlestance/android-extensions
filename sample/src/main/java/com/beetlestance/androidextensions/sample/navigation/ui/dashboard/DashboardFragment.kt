@@ -9,7 +9,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
-import com.beetlestance.androidextensions.navigation.extensions.handleDeeplink
 import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
 import com.beetlestance.androidextensions.navigation.extensions.setupMultipleBackStackBottomNavigation
 import com.beetlestance.androidextensions.sample.R
@@ -66,8 +65,6 @@ class DashboardFragment : Fragment() {
             validatedRequest = ::validateDeeplink,
             onControllerChange = ::onControllerChange
         )
-
-        handleDeeplink(requireBinding().dashboardFragmentBottomNavigation)
     }
 
     private fun onControllerChange(navController: NavController) {
