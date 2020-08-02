@@ -8,15 +8,17 @@ The extensions are build upon the [Advanced Navigation Sample](https://github.co
 * Logic for splash and login will be handled before opening deeplink.
 * There are options to open a destination only once for both directions and uri. User will only navigate to a destination only once.
 
-
 Most of the application needs to show a splash screen before navigating to their main screen. For this to work we have to create a fragment which will hold all the bottom navigation fragments. This fragment will on same level as of splash screen.
 
 ## How to use?
-The library is best suited when you have single activity architecture. The primary activity must be using `singleTask` launch mode. 
+The library is best suited when you have single activity architecture. 
 
+Pointers to remember:
+1. The primary activity must be using `singleTask` launch mode. 
 ```
 android:launchMode="singleTask"
 ```
+2. In case of primary fragment: The nav graph for primary activity is setup in `setUpDeeplinkNavigationBehavior`. So you should not provide graph to `FragmentContainerView` but remeber to set `app:defaultNavHost = true`.
 
 There are extension functions available to be used in activity and fragment.
 
@@ -73,13 +75,14 @@ This is the fragment where bottom navigation is setup.
     
     [NavigateOnceDirectionRequest](https://github.com/beetlestance/android-extensions/blob/main/navigation/src/main/java/com/beetlestance/androidextensions/navigation/NavigateOnceDirectionRequest.kt) 
 
-### Download
-
+### Usage
+```Kotlin
+implementation("com.github.beetlestance.android-extensions:navigation:0.1.0-alpha02")
+```
 
 ### What is the goal and future expectations?
 The goal is to provide seemless navigation with all the available methods like Deeplink, Notifications, App links and simple destinations. 
 Future Expectations:
-1. Will showcase how FCM notifications can be handled via deeplnks and the above extensions
-2. Provide youtube like backstack for bottom navigation
-3. Handle App links via navigation components.
+1. Provide youtube like backstack for bottom navigation
+2. Handle App links via navigation components.
 
