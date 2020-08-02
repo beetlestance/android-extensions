@@ -14,62 +14,7 @@ import com.beetlestance.androidextensions.navigation.Navigator
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-/**
- * Fragment extension that handles all the deeplink request in the app.
- *
- * @param bottomNavigationView this is the bottomNavigationView that contains the fragment for
- * multiple back stacks
- * @param request is a lambda function that returns the current [NavigateOnceDeeplinkRequest] for
- * modification or any validation. it requires [NavigateOnceDeeplinkRequest] as its return type
- *
- * How does it work?
- * This function observe for navigate request[NavigateOnceDeeplinkRequest] that may be originated
- * from anywhere in the app through function `DeeplinkNavigator.navigate()` or handleIntentForDeeplink
- * in your launcher Activity.
- */
-fun Fragment.handleDeeplink(
-    bottomNavigationView: BottomNavigationView,
-    request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
-) {
-    val navigator = Navigator.getInstance()
-    navigator.navigateRequest.observe(viewLifecycleOwner) {
-        navigator.handleDeeplink(
-            navController = findNavController(),
-            bottomNavigationView = bottomNavigationView,
-            fragmentManager = childFragmentManager,
-            request = it.request()
-        )
-    }
-}
 
-
-/**
- * Activity extension that handles all the deeplink request in the app.
- *
- * @param bottomNavigationView this is the bottomNavigationView that contains the fragment for
- * multiple back stacks
- * @param request is a lambda function that returns the current [NavigateOnceDeeplinkRequest] for
- * modification or any validation. it requires [NavigateOnceDeeplinkRequest] as its return type
- *
- * How does it work?
- * This function observe for navigate request[NavigateOnceDeeplinkRequest] that may be originated
- * from anywhere in the app through function `DeeplinkNavigator.navigate()` or handleIntentForDeeplink
- * in your launcher Activity.
- */
-fun AppCompatActivity.handleDeeplink(
-    bottomNavigationView: BottomNavigationView,
-    request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
-) {
-    val navigator = Navigator.getInstance()
-    navigator.navigateRequest.observe(this) {
-        navigator.handleDeeplink(
-            navController = null,
-            bottomNavigationView = bottomNavigationView,
-            fragmentManager = supportFragmentManager,
-            request = it.request()
-        )
-    }
-}
 
 /**
  * Activity extension to specify how does you want the library to handle backstack of the activity

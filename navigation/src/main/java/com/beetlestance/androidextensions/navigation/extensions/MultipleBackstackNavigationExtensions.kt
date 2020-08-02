@@ -259,6 +259,20 @@ private fun setupMultipleBackStack(
     }
 }
 
+/**
+ * Fragment extension that handles all the deeplink request in the app.
+ *
+ * @param bottomNavigationView this is the bottomNavigationView that contains the fragment for
+ * multiple back stacks
+ * @param request is a lambda function that returns the current [NavigateOnceDeeplinkRequest] for
+ * modification or any validation. it requires [NavigateOnceDeeplinkRequest] as its return type
+ *
+ * How does it work?
+ * This function observe for navigate request[NavigateOnceDeeplinkRequest] that may be originated
+ * from anywhere in the app through function `DeeplinkNavigator.navigate()` or handleIntentForDeeplink
+ * in your launcher Activity.
+ */
+
 private fun handleDeeplink(
     bottomNavigationView: BottomNavigationView,
     lifecycleOwner: LifecycleOwner,
