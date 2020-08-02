@@ -23,12 +23,31 @@ There are extension functions available to be used in activity and fragment.
 ### In you primary activity
 1. `onHandleDeeplinkIntent` : call this method from activty's `onCreate` and `onNewIntent`.
 2. If you are setting up your bottom navigation in fragment instead of activity you will have to call `setUpDeeplinkNavigationBehavior` before anything else.
-3. If you bottom navigation is attached to activity itself you have to call `setupMultipleBackStackBottomNavigation`. This will complete the setup.
+3. If you bottom navigation is attached to activity itself you have to call `setupMultipleBackStackBottomNavigation`. This will complete the setup. This method is called in `onCreate` if `savedInstanceState` is null, otherwise this happens in `onRestoreInstanceState`.
+```Kotlin
+    if (savedInstanceState == null) {
+        setUpBottomNavigation()
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState:Bundle) 
+    {
+        super.onRestoreInstanceState(savedInstanceState)
+        setUpBottomNavigation()
+    }
+```
 
 
 ### In you primary fragment
 This is the fragment where bottom navigation is setup.
-`setupMultipleBackStackBottomNavigation` call this method after meeting up with the activity requirements. This is all you need in fragment.
+
+`setupMultipleBackStackBottomNavigation` call this method after meeting up with the activity requirements. This is all you need in fragment. Call this method once fragment state is restored.
+```Kotlin
+    override fun onViewStateRestored(savedInstanceState: Bundle?)
+    {
+        super.onViewStateRestored(savedInstanceState)
+        setupBottomNavigationBar()
+    }
+```
 
 
 ## Available Extensions for multiple back stack navigation and deeplink
