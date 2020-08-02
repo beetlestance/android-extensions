@@ -6,11 +6,13 @@ import androidx.core.util.forEach
 import androidx.core.util.set
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.beetlestance.androidextensions.navigation.Navigator
 import com.beetlestance.androidextensions.navigation.data.NavAnimations
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
@@ -42,10 +44,19 @@ fun Fragment.setupMultipleBackStackBottomNavigation(
     navGraphIds: List<Int>,
     containerId: Int,
     bottomNavigationView: BottomNavigationView,
-    navAnimations: NavAnimations = NavAnimations()
-): LiveData<NavController> {
+    navAnimations: NavAnimations = NavAnimations(),
+    validatedRequest: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this },
+    onControllerChange: (NavController) -> Unit
+) {
     storeNavDefaults(navGraphIds, containerId, navAnimations)
-    return setupMultipleBackStackBottomNavigation(bottomNavigationView, childFragmentManager)
+    setupMultipleBackStack(
+        bottomNavigationView = bottomNavigationView,
+        fragmentManager = childFragmentManager,
+        activityNavController = findNavController(),
+        lifecycleOwner = viewLifecycleOwner,
+        validatedRequest = validatedRequest,
+        onControllerChange = onControllerChange
+    )
 }
 
 /**
@@ -59,12 +70,19 @@ fun AppCompatActivity.setupMultipleBackStackBottomNavigation(
     navGraphIds: List<Int>,
     containerId: Int,
     bottomNavigationView: BottomNavigationView,
-    navAnimations: NavAnimations = NavAnimations()
-): LiveData<NavController> {
-
+    navAnimations: NavAnimations = NavAnimations(),
+    validatedRequest: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this },
+    onControllerChange: (NavController) -> Unit
+) {
     storeNavDefaults(navGraphIds, containerId, navAnimations)
-
-    return setupMultipleBackStackBottomNavigation(bottomNavigationView, supportFragmentManager)
+    setupMultipleBackStack(
+        bottomNavigationView = bottomNavigationView,
+        fragmentManager = supportFragmentManager,
+        activityNavController = null,
+        lifecycleOwner = this,
+        validatedRequest = validatedRequest,
+        onControllerChange = onControllerChange
+    )
 }
 
 private fun storeNavDefaults(
@@ -86,11 +104,14 @@ private fun storeNavDefaults(
  *
  * @param fragmentManager The [FragmentManager] which will be used to attach [NavHostFragment]
  */
-private fun setupMultipleBackStackBottomNavigation(
+private fun setupMultipleBackStack(
     bottomNavigationView: BottomNavigationView,
-    fragmentManager: FragmentManager
-): LiveData<NavController> {
-
+    fragmentManager: FragmentManager,
+    lifecycleOwner: LifecycleOwner,
+    activityNavController: NavController?,
+    onControllerChange: (NavController) -> Unit,
+    validatedRequest: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
+) {
     // Map of tags
     val graphIdToTagMap = SparseArray<String>()
 
@@ -210,6 +231,14 @@ private fun setupMultipleBackStackBottomNavigation(
     // Optional: on item reselected, pop back stack to the destination of the graph
     bottomNavigationView.setupItemReselected(graphIdToTagMap, fragmentManager)
 
+    handleDeeplink(
+        bottomNavigationView = bottomNavigationView,
+        lifecycleOwner = lifecycleOwner,
+        fragmentManager = fragmentManager,
+        activityNavController = activityNavController,
+        request = validatedRequest
+    )
+
     // Finally, ensure that we update our BottomNavigationView when the back stack changes
     fragmentManager.addOnBackStackChangedListener {
         if (!isOnFirstFragment && !fragmentManager.isOnBackStack(firstFragmentTag)) {
@@ -224,7 +253,28 @@ private fun setupMultipleBackStackBottomNavigation(
             }
         }
     }
-    return selectedNavController
+
+    selectedNavController.observe(lifecycleOwner) {
+        onControllerChange(it)
+    }
+}
+
+private fun handleDeeplink(
+    bottomNavigationView: BottomNavigationView,
+    lifecycleOwner: LifecycleOwner,
+    fragmentManager: FragmentManager,
+    activityNavController: NavController?,
+    request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
+) {
+    val navigator = Navigator.getInstance()
+    navigator.navigateRequest.observe(lifecycleOwner) {
+        navigator.handleDeeplink(
+            navController = activityNavController,
+            bottomNavigationView = bottomNavigationView,
+            fragmentManager = fragmentManager,
+            request = it.request()
+        )
+    }
 }
 
 private fun BottomNavigationView.setupItemReselected(

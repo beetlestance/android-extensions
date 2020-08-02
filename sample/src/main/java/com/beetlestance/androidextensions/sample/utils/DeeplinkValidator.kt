@@ -6,9 +6,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DeeplinkValidator @Inject constructor() {
+class DeeplinkValidator constructor() {
 
-    fun validateDeeplink(uri: Uri, context: Context): Uri {
+    fun validateDeeplink(uri: Uri): Uri {
 //        val user = User()
 //        val deeplink = uri.toString()
 //        val noArgsDeeplink = deeplink.split("?").getOrElse(0) { uri.toString() }

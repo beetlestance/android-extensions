@@ -2,6 +2,7 @@ package com.beetlestance.androidextensions.navigation.extensions
 
 import android.content.Intent
 import androidx.annotation.IdRes
+import androidx.annotation.NavigationRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
@@ -84,9 +85,9 @@ fun AppCompatActivity.handleDeeplink(
  * This should only be called from primary activity. Activity that hosts fragment with bottom navigation.
  */
 fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
-    navHostFragmentId: Int,
-    primaryFragmentId: Int,
-    graphId: Int,
+    @IdRes navHostFragmentId: Int,
+    @IdRes primaryFragmentId: Int,
+    @NavigationRes graphId: Int,
     fragmentBackStackBehavior: Map<Int, DeeplinkNavigationPolicy> = mapOf()
 ) {
     val navigator = Navigator.getInstance()
@@ -121,14 +122,12 @@ fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
  *
  */
 fun AppCompatActivity.handleDeeplinkIntent(
-    validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
     handleIntent: (intent: Intent?) -> Unit = {}
 ) {
     val navigator = Navigator.getInstance()
     navigator.handleDeeplinkIntent(
         intent = intent,
         navController = navigator.parentNavHostContainerId?.let { getNavController(it) },
-        validateDeeplinkRequest = validateDeeplinkRequest,
         handleIntent = handleIntent
     )
 }

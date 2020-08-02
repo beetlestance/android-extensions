@@ -6,14 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.extensions.handleDeeplink
 import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
 import com.beetlestance.androidextensions.navigation.extensions.setupMultipleBackStackBottomNavigation
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.FragmentDashboardBinding
+import com.beetlestance.androidextensions.sample.utils.DeeplinkValidator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -61,25 +62,34 @@ class DashboardFragment : Fragment() {
         setupMultipleBackStackBottomNavigation(
             navGraphIds = NAV_GRAPH_IDS,
             containerId = requireBinding().navHostFragmentDashboard.id,
-            bottomNavigationView = requireBinding().dashboardFragmentBottomNavigation
-        ).observe(viewLifecycleOwner) { navController ->
-            currentNavController = navController
+            bottomNavigationView = requireBinding().dashboardFragmentBottomNavigation,
+            validatedRequest = ::validateDeeplink,
+            onControllerChange = ::onControllerChange
+        )
 
-            // Choose when to show/hide the Bottom Navigation View
-            navController.addOnDestinationChangedListener { _, destination, _ ->
+        handleDeeplink(requireBinding().dashboardFragmentBottomNavigation)
+    }
 
-                when {
-                    TOP_LEVEL_DESTINATION.contains(destination.id) -> {
-                        showNavigators()
-                    }
-                    else -> {
-                        hideNavigators()
-                    }
+    private fun onControllerChange(navController: NavController) {
+        currentNavController = navController
+
+        // Choose when to show/hide the Bottom Navigation View
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+
+            when {
+                TOP_LEVEL_DESTINATION.contains(destination.id) -> {
+                    showNavigators()
+                }
+                else -> {
+                    hideNavigators()
                 }
             }
         }
+    }
 
-        handleDeeplink(requireBinding().dashboardFragmentBottomNavigation)
+    private fun validateDeeplink(originalRequest: NavigateOnceDeeplinkRequest): NavigateOnceDeeplinkRequest {
+        val validateDeeplink = DeeplinkValidator().validateDeeplink(originalRequest.deeplink)
+        return NavigateOnceDeeplinkRequest(deeplink = validateDeeplink)
     }
 
     @Synchronized

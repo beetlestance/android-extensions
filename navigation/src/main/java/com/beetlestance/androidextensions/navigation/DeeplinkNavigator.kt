@@ -103,11 +103,9 @@ internal class Navigator private constructor() {
     internal fun handleDeeplinkIntent(
         intent: Intent?,
         navController: NavController?,
-        validateDeeplinkRequest: NavigateOnceDeeplinkRequest? = null,
         handleIntent: (intent: Intent?) -> Unit = {}
     ) {
         val deeplinkRequest = when {
-            validateDeeplinkRequest != null -> validateDeeplinkRequest
             intent?.data != null -> NavigateOnceDeeplinkRequest(deeplink = intent.data!!)
             else -> null
         }

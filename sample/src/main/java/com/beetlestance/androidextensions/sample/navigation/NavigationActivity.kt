@@ -3,12 +3,13 @@ package com.beetlestance.androidextensions.sample.navigation
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.observe
-import com.beetlestance.androidextensions.navigation.extensions.handleDeeplink
+import androidx.navigation.NavController
+import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
 import com.beetlestance.androidextensions.navigation.extensions.setupMultipleBackStackBottomNavigation
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.ActivityNavigationBinding
+import com.beetlestance.androidextensions.sample.utils.DeeplinkValidator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -46,15 +47,21 @@ class NavigationActivity : AppCompatActivity() {
         setupMultipleBackStackBottomNavigation(
             navGraphIds = NAV_GRAPH_IDS,
             containerId = binding.navHostNavigationActivity.id,
-            bottomNavigationView = binding.navigationActivityBottomNavigation
-        ).observe(this) { navController ->
-            // Choose when to show/hide the Bottom Navigation View
-            navController.addOnDestinationChangedListener { _, destination, _ ->
+            bottomNavigationView = binding.navigationActivityBottomNavigation,
+            validatedRequest = ::validateDeeplink,
+            onControllerChange = ::onControllerChange
+        )
+    }
 
-            }
+    private fun onControllerChange(navController: NavController) {
+        // Choose when to show/hide the Bottom Navigation View
+        navController.addOnDestinationChangedListener { _, destination, _ ->
         }
+    }
 
-        handleDeeplink(binding.navigationActivityBottomNavigation)
+    private fun validateDeeplink(originalRequest: NavigateOnceDeeplinkRequest): NavigateOnceDeeplinkRequest {
+        val validateDeeplink = DeeplinkValidator().validateDeeplink(originalRequest.deeplink)
+        return NavigateOnceDeeplinkRequest(deeplink = validateDeeplink)
     }
 
 
