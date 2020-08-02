@@ -12,10 +12,10 @@ The extensions are build upon the [Advanced Navigation Sample](https://github.co
 Most of the application needs to show a splash screen before navigating to their main screen. For this to work we have to create a fragment which will hold all the bottom navigation fragments. This fragment will on same level as of splash screen.
 
 ## How to use?
-The library is best suited when you have single activity architecture. The primary activty must be using `singleTask` launch mode. 
+The library is best suited when you have single activity architecture. The primary activity must be using `singleTask` launch mode. 
 
 ```
-android:launchMode="singleTop"
+android:launchMode="singleTask"
 ```
 
 There are extension functions available to be used in activity and fragment.
