@@ -49,8 +49,7 @@ fun Fragment.setupMultipleBackStackBottomNavigation(
     onControllerChange: (NavController) -> Unit
 ) {
     storeNavDefaults(navGraphIds, containerId, navAnimations)
-    setupMultipleBackStack(
-        bottomNavigationView = bottomNavigationView,
+    bottomNavigationView.setupMultipleBackStack(
         fragmentManager = childFragmentManager,
         activityNavController = findNavController(),
         lifecycleOwner = viewLifecycleOwner,
@@ -75,8 +74,7 @@ fun AppCompatActivity.setupMultipleBackStackBottomNavigation(
     onControllerChange: (NavController) -> Unit
 ) {
     storeNavDefaults(navGraphIds, containerId, navAnimations)
-    setupMultipleBackStack(
-        bottomNavigationView = bottomNavigationView,
+    bottomNavigationView.setupMultipleBackStack(
         fragmentManager = supportFragmentManager,
         activityNavController = null,
         lifecycleOwner = this,
@@ -104,8 +102,7 @@ private fun storeNavDefaults(
  *
  * @param fragmentManager The [FragmentManager] which will be used to attach [NavHostFragment]
  */
-private fun setupMultipleBackStack(
-    bottomNavigationView: BottomNavigationView,
+private fun BottomNavigationView.setupMultipleBackStack(
     fragmentManager: FragmentManager,
     lifecycleOwner: LifecycleOwner,
     activityNavController: NavController?,
@@ -119,7 +116,7 @@ private fun setupMultipleBackStack(
     val selectedNavController = MutableLiveData<NavController>()
 
     // First fragment graph index in the provided list
-    var firstFragmentGraphId = mNavGraphIds.lastIndex
+    var firstFragmentGraphId = 0
 
     // First create a NavHostFragment for each NavGraph ID
     //
@@ -127,7 +124,7 @@ private fun setupMultipleBackStack(
     // [FragmentContainerView].
     // See the link below for the changes in Navigation library.
     // https://android.googlesource.com/platform/frameworks/support/+/523601f023afb95f861e94c149c50e4962ea42e3
-    mNavGraphIds.reversed().forEachIndexed { index, navGraphId ->
+    mNavGraphIds.forEachIndexed { index, navGraphId ->
         val fragmentTag: String = getFragmentTag(index)
 
         // Find or create the Navigation host fragment
@@ -142,23 +139,15 @@ private fun setupMultipleBackStack(
         // Obtain its id
         val graphId = navHostFragment.navController.graph.id
 
-        if (index == mNavGraphIds.lastIndex) {
+        if (index == 0) {
             firstFragmentGraphId = graphId
         }
 
         // Save to the map
         graphIdToTagMap[graphId] = fragmentTag
 
-        // Attach or detach nav host fragment depending on whether it's the selected item.
-        if (bottomNavigationView.selectedItemId == graphId) {
-            // Update liveData with the selected graph
-            selectedNavController.value = navHostFragment.navController
-            attachNavHostFragment(
-                fragmentManager,
-                navHostFragment,
-                index == mNavGraphIds.lastIndex
-            )
-        } else {
+        // Detach nav host fragment depending on whether it's the selected item.
+        if (selectedItemId != graphId) {
             detachNavHostFragment(
                 fragmentManager,
                 navHostFragment
@@ -166,13 +155,32 @@ private fun setupMultipleBackStack(
         }
     }
 
+    // Selected Item NavHostFragment
+    val navHostFragment =
+        obtainNavHostFragment(
+            fragmentManager,
+            getFragmentTag(graphIdToTagMap.indexOfKey(selectedItemId)),
+            selectedItemId,
+            mContainerId
+        )
+
+    // Update liveData with the selected graph
+    selectedNavController.value = navHostFragment.navController
+
+    // Attach nav host fragment with the selected item.
+    attachNavHostFragment(
+        fragmentManager,
+        navHostFragment,
+        firstFragmentGraphId == selectedItemId
+    )
+
     // Now connect selecting an item with swapping Fragments
-    var selectedItemTag = graphIdToTagMap[bottomNavigationView.selectedItemId]
+    var selectedItemTag = graphIdToTagMap[selectedItemId]
     val firstFragmentTag = graphIdToTagMap[firstFragmentGraphId]
     var isOnFirstFragment = selectedItemTag == firstFragmentTag
 
     // When a navigation item is selected
-    bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+    setOnNavigationItemSelectedListener { item ->
         // Don't do anything if the state is state has already been saved.
         if (fragmentManager.isStateSaved) {
             false
@@ -229,10 +237,9 @@ private fun setupMultipleBackStack(
     }
 
     // Optional: on item reselected, pop back stack to the destination of the graph
-    bottomNavigationView.setupItemReselected(graphIdToTagMap, fragmentManager)
+    setupItemReselected(graphIdToTagMap, fragmentManager)
 
     handleDeeplink(
-        bottomNavigationView = bottomNavigationView,
         lifecycleOwner = lifecycleOwner,
         fragmentManager = fragmentManager,
         activityNavController = activityNavController,
@@ -242,7 +249,7 @@ private fun setupMultipleBackStack(
     // Finally, ensure that we update our BottomNavigationView when the back stack changes
     fragmentManager.addOnBackStackChangedListener {
         if (!isOnFirstFragment && !fragmentManager.isOnBackStack(firstFragmentTag)) {
-            bottomNavigationView.selectedItemId = firstFragmentGraphId
+            selectedItemId = firstFragmentGraphId
         }
 
         // Reset the graph if the currentDestination is not valid (happens when the back
@@ -262,8 +269,6 @@ private fun setupMultipleBackStack(
 /**
  * Fragment extension that handles all the deeplink request in the app.
  *
- * @param bottomNavigationView this is the bottomNavigationView that contains the fragment for
- * multiple back stacks
  * @param request is a lambda function that returns the current [NavigateOnceDeeplinkRequest] for
  * modification or any validation. it requires [NavigateOnceDeeplinkRequest] as its return type
  *
@@ -273,8 +278,7 @@ private fun setupMultipleBackStack(
  * in your launcher Activity.
  */
 
-private fun handleDeeplink(
-    bottomNavigationView: BottomNavigationView,
+private fun BottomNavigationView.handleDeeplink(
     lifecycleOwner: LifecycleOwner,
     fragmentManager: FragmentManager,
     activityNavController: NavController?,
@@ -284,7 +288,7 @@ private fun handleDeeplink(
     navigator.navigateRequest.observe(lifecycleOwner) {
         navigator.handleDeeplink(
             navController = activityNavController,
-            bottomNavigationView = bottomNavigationView,
+            bottomNavigationView = this,
             fragmentManager = fragmentManager,
             request = it.request()
         )
