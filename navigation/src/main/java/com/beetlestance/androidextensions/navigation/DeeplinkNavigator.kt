@@ -30,9 +30,10 @@ object DeeplinkNavigator {
  */
 internal class Navigator private constructor() {
 
-    // This is the fragment id of the fragment which contains the BottomNavigationView
-    // In case of activity this will remain null.
-    private var primaryFragmentId: Int? = null
+    /**
+     * Add a destination changed listener on activity controller
+     */
+    internal var onDestinationChangeListener: NavController.OnDestinationChangedListener? = null
 
     // This is the fragment id of the fragment which contains the BottomNavigationView
     // In case of activity this will remain null.
@@ -42,7 +43,7 @@ internal class Navigator private constructor() {
     var fragmentBackStackBehavior: Map<Int, DeeplinkNavigationPolicy> = mapOf()
 
     // Flag specifies we should clear the back stack or not based on retainFragmentIds and current destination
-    private var resetDestinationToPrimaryFragment: Boolean = false
+    internal var resetDestinationToPrimaryFragment: Boolean = false
 
     // LiveData that will be observed for any upcoming deeplink request
     private val navigatorDeeplink: MutableLiveData<NavigateOnceDeeplinkRequest> = MutableLiveData()
@@ -55,9 +56,8 @@ internal class Navigator private constructor() {
     /**
      * Sets primary navigation id
      */
-    fun setPrimaryNavigationId(primaryFragmentId: Int, parentNavHostContainerId: Int) {
+    fun setPrimaryNavigationId(parentNavHostContainerId: Int) {
         this.parentNavHostContainerId = parentNavHostContainerId
-        this.primaryFragmentId = primaryFragmentId
     }
 
     /**
@@ -118,16 +118,6 @@ internal class Navigator private constructor() {
         handleIntent(intent)
         intent?.data = null
     }
-
-    /**
-     * Add a destination changed listener on activity controller
-     */
-    internal val onDestinationChangeListener =
-        NavController.OnDestinationChangedListener { _, destination, _ ->
-            // check if back stack should be cleared on not
-            resetDestinationToPrimaryFragment = destination.id != primaryFragmentId &&
-                    fragmentBackStackBehavior[destination.id] == DeeplinkNavigationPolicy.EXIT_AND_NAVIGATE
-        }
 
 
     /**

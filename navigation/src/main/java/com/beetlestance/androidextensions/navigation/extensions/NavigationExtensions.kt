@@ -1,11 +1,19 @@
 package com.beetlestance.androidextensions.navigation.extensions
 
-import androidx.navigation.NavAction
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import androidx.navigation.NavOptions
+import android.net.Uri
+import androidx.navigation.*
+import androidx.navigation.fragment.FragmentNavigator
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDirectionRequest
+
+
+/**
+ * The extension for [NavController] which uses provide [deeplink] to navigate
+ * to a destination with given request parameters.
+ */
+fun NavController.navigateOnce(deeplink: Uri) {
+    navigateOnce(NavigateOnceDeeplinkRequest(deeplink = deeplink))
+}
 
 /**
  * The extension for [NavController] which uses provide [NavigateOnceDeeplinkRequest] to navigate
@@ -46,6 +54,24 @@ fun NavController.navigateOnce(navigationRequest: NavigateOnceDeeplinkRequest) {
             navigate(navigationRequest.deeplink)
         }
     }
+}
+
+/**
+ * The extension for [NavController] which uses provide [directions] to navigate
+ * to a destination with given request parameters.
+ */
+fun NavController.navigateOnce(
+    directions: NavDirections,
+    extras: FragmentNavigator.Extras? = null,
+    navOptions: NavOptions? = null
+) {
+    navigateOnce(
+        NavigateOnceDirectionRequest(
+            directions = directions,
+            navigatorExtras = extras,
+            navOptions = navOptions
+        )
+    )
 }
 
 /**
