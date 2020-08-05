@@ -153,26 +153,26 @@ private fun BottomNavigationView.setupMultipleBackStack(
                 navHostFragment
             )
         }
-    }
+    }.also {
+        // Selected Item NavHostFragment
+        val navHostFragment =
+            obtainNavHostFragment(
+                fragmentManager,
+                graphIdToTagMap[selectedItemId],
+                selectedItemId,
+                mContainerId
+            )
 
-    // Selected Item NavHostFragment
-    val navHostFragment =
-        obtainNavHostFragment(
-            fragmentManager,
-            getFragmentTag(graphIdToTagMap.indexOfKey(selectedItemId)),
-            selectedItemId,
-            mContainerId
+        // Update liveData with the selected graph
+        selectedNavController.value = navHostFragment.navController
+
+        // Attach nav host fragment with the selected item.
+        attachNavHostFragment(
+            fragmentManager = fragmentManager,
+            navHostFragment = navHostFragment,
+            isPrimaryNavFragment = firstFragmentGraphId == selectedItemId
         )
-
-    // Update liveData with the selected graph
-    selectedNavController.value = navHostFragment.navController
-
-    // Attach nav host fragment with the selected item.
-    attachNavHostFragment(
-        fragmentManager,
-        navHostFragment,
-        firstFragmentGraphId == selectedItemId
-    )
+    }
 
     // Now connect selecting an item with swapping Fragments
     var selectedItemTag = graphIdToTagMap[selectedItemId]
