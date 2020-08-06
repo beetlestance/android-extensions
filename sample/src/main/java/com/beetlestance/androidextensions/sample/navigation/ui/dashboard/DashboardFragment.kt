@@ -86,7 +86,7 @@ class DashboardFragment : Fragment() {
 
     private fun validateDeeplink(originalRequest: NavigateOnceDeeplinkRequest): NavigateOnceDeeplinkRequest {
         val validateDeeplink = DeeplinkValidator().validateDeeplink(originalRequest.deeplink)
-        return NavigateOnceDeeplinkRequest(deeplink = validateDeeplink)
+        return originalRequest.copy(deeplink = validateDeeplink)
     }
 
     @Synchronized

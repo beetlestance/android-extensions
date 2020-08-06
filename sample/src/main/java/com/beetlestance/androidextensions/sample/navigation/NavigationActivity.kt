@@ -56,12 +56,13 @@ class NavigationActivity : AppCompatActivity() {
     private fun onControllerChange(navController: NavController) {
         // Choose when to show/hide the Bottom Navigation View
         navController.addOnDestinationChangedListener { _, destination, _ ->
+
         }
     }
 
     private fun validateDeeplink(originalRequest: NavigateOnceDeeplinkRequest): NavigateOnceDeeplinkRequest {
         val validateDeeplink = DeeplinkValidator().validateDeeplink(originalRequest.deeplink)
-        return NavigateOnceDeeplinkRequest(deeplink = validateDeeplink)
+        return originalRequest.copy(deeplink = validateDeeplink)
     }
 
 
