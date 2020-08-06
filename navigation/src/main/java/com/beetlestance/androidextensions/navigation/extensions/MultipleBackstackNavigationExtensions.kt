@@ -146,13 +146,9 @@ private fun BottomNavigationView.setupMultipleBackStack(
         // Save to the map
         graphIdToTagMap[graphId] = fragmentTag
 
-        // Detach nav host fragment depending on whether it's the selected item.
-        if (selectedItemId != graphId) {
-            detachNavHostFragment(
-                fragmentManager,
-                navHostFragment
-            )
-        }
+        // Detach nav host fragment.
+        detachNavHostFragment(fragmentManager, navHostFragment)
+
     }.also {
         // Selected Item NavHostFragment
         val navHostFragment =
