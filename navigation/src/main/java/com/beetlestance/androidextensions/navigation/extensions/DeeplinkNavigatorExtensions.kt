@@ -51,9 +51,7 @@ fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
 }
 
 
-fun FragmentActivity.setUpPrimaryFragment(
-    @IdRes primaryFragmentId: Int
-) {
+fun FragmentActivity.setUpPrimaryFragment(@IdRes primaryFragmentId: Int) {
     val navigator = Navigator.getInstance()
     val navController = getNavController(navigator.parentNavHostContainerId!!)
 
@@ -69,6 +67,8 @@ fun FragmentActivity.setUpPrimaryFragment(
         }
 
     navController.addOnDestinationChangedListener(navigator.onDestinationChangeListener!!)
+
+    navigator.popToPrimaryFragment.removeObservers(this)
 
     navigator.popToPrimaryFragment.observe(this) {
         navController.popBackStack(primaryFragmentId, false)
