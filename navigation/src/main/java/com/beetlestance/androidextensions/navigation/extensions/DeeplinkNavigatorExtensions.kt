@@ -62,8 +62,14 @@ fun FragmentActivity.setUpPrimaryFragment(@IdRes primaryFragmentId: Int) {
     navigator.onDestinationChangeListener =
         NavController.OnDestinationChangedListener { _, destination, _ ->
             // check if back stack should be cleared on not
-            navigator.resetDestinationToPrimaryFragment = destination.id != primaryFragmentId &&
-                    navigator.fragmentBackStackBehavior[destination.id] == DeeplinkNavigationPolicy.EXIT_AND_NAVIGATE
+            val popBackStack = when (navigator.fragmentBackStackBehavior[destination.id]) {
+                DeeplinkNavigationPolicy.NAVIGATE_ON_EXIT -> false
+                DeeplinkNavigationPolicy.RETAIN_AND_DISCARD -> false
+                else -> true
+            }
+            navigator.resetDestinationToPrimaryFragment =
+                destination.id != primaryFragmentId && popBackStack
+
         }
 
     navController.addOnDestinationChangedListener(navigator.onDestinationChangeListener!!)
