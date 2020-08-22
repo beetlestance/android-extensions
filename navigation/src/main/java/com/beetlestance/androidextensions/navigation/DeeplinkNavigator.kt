@@ -1,6 +1,7 @@
 package com.beetlestance.androidextensions.navigation
 
 import android.content.Intent
+import android.net.Uri
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
@@ -21,6 +22,14 @@ object DeeplinkNavigator {
      */
     fun navigate(request: NavigateOnceDeeplinkRequest) {
         Navigator.getInstance().postForNavigation(request, null, true)
+    }
+
+    /**
+     * Should be used whenever you are navigating with deeplinks
+     * @param deepLink [Uri] for navigating
+     */
+    fun navigate(deepLink: Uri) {
+        Navigator.getInstance().postForNavigation(NavigateOnceDeeplinkRequest(deepLink), null, true)
     }
 }
 

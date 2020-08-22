@@ -7,7 +7,6 @@ import androidx.core.util.set
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
@@ -113,7 +112,7 @@ private fun BottomNavigationView.setupMultipleBackStack(
     val graphIdToTagMap = SparseArray<String>()
 
     // Result. Mutable live data with the selected controlled
-    val selectedNavController = MutableLiveData<NavController>()
+    var selectedNavController: NavController
 
     // First fragment graph index in the provided list
     var firstFragmentGraphId = 0
@@ -160,7 +159,8 @@ private fun BottomNavigationView.setupMultipleBackStack(
             )
 
         // Update liveData with the selected graph
-        selectedNavController.value = navHostFragment.navController
+        selectedNavController = navHostFragment.navController
+        onControllerChange(selectedNavController)
 
         // Attach nav host fragment with the selected item.
         attachNavHostFragment(
@@ -224,7 +224,8 @@ private fun BottomNavigationView.setupMultipleBackStack(
                 }
                 selectedItemTag = newlySelectedItemTag
                 isOnFirstFragment = selectedItemTag == firstFragmentTag
-                selectedNavController.value = selectedFragment.navController
+                selectedNavController = selectedFragment.navController
+                onControllerChange(selectedNavController)
                 true
             } else {
                 false
@@ -250,15 +251,9 @@ private fun BottomNavigationView.setupMultipleBackStack(
 
         // Reset the graph if the currentDestination is not valid (happens when the back
         // stack is popped after using the back button).
-        selectedNavController.value?.let { controller ->
-            if (controller.currentDestination == null) {
-                controller.navigate(controller.graph.id)
-            }
+        if (selectedNavController.currentDestination == null) {
+            selectedNavController.navigate(selectedNavController.graph.id)
         }
-    }
-
-    selectedNavController.observe(lifecycleOwner) {
-        onControllerChange(it)
     }
 }
 
