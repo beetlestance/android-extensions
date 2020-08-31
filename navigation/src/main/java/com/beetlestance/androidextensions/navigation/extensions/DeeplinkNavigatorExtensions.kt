@@ -30,12 +30,14 @@ fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
     @IdRes navHostFragmentId: Int,
     @IdRes primaryFragmentId: Int? = null,
     @NavigationRes graphId: Int,
+    safeNavigation: Boolean = true,
     fragmentBackStackBehavior: Map<Int, DeeplinkNavigationPolicy> = mapOf()
 ) {
     val navigator = Navigator.getInstance()
     navigator.setPrimaryNavigationId(navHostFragmentId)
     val navController = getNavController(navHostFragmentId)
     navigator.fragmentBackStackBehavior = fragmentBackStackBehavior
+    navigator.safeNavigationEnabled = safeNavigation
 
     // extract deeplink so that setGraph can not manually handle the deeplink
     val deeplink = intent.data

@@ -3,6 +3,7 @@ package com.beetlestance.androidextensions.navigation.extensions
 import android.net.Uri
 import androidx.navigation.*
 import androidx.navigation.fragment.FragmentNavigator
+import com.beetlestance.androidextensions.navigation.Navigator
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDirectionRequest
 
@@ -20,6 +21,12 @@ fun NavController.navigateOnce(deeplink: Uri) {
  * to a destination with given request parameters.
  */
 fun NavController.navigateOnce(navigationRequest: NavigateOnceDeeplinkRequest) {
+    val navigator = Navigator.getInstance()
+    // check if controller can open this deeplink
+    val containsDeeplink = graph.hasDeepLink(navigationRequest.deeplink)
+
+    if (containsDeeplink.not() && navigator.safeNavigationEnabled) return
+
     // Check if the destination we want to open is already on the top of the backstack
     val alreadyNavigated: Boolean =
         currentDestination?.hasDeepLink(navigationRequest.deeplink) == true
@@ -79,9 +86,17 @@ fun NavController.navigateOnce(
  * to a destination with given request parameters.
  */
 fun NavController.navigateOnce(navigationRequest: NavigateOnceDirectionRequest) {
+    val navigator = Navigator.getInstance()
     // Check if navController has action for direction and return if no action found
     val navigationAction =
-        currentDestination?.getAction(navigationRequest.directions.actionId) ?: return
+        currentDestination?.getAction(navigationRequest.directions.actionId)
+
+    if (navigationAction == null && navigator.safeNavigationEnabled) return
+
+    if (navigationAction == null) throw IllegalArgumentException(
+        "Navigation Destination " + navigationRequest.directions.actionId
+                + " does not belong to graph"
+    )
 
     // check if destination is already on the top of backstack
     val alreadyNavigated = navigationAction.destinationId == currentDestination?.id

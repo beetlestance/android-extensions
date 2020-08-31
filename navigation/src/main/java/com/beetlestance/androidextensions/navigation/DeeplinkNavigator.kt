@@ -62,6 +62,8 @@ internal class Navigator private constructor() {
     private val clearBackStack: MutableLiveData<Boolean> = MutableLiveData(false)
     internal val popToPrimaryFragment = clearBackStack.toSingleEvent()
 
+    internal var safeNavigationEnabled: Boolean = true
+
     /**
      * Sets primary navigation id
      */

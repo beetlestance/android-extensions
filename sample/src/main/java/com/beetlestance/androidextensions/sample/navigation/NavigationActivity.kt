@@ -3,6 +3,7 @@ package com.beetlestance.androidextensions.sample.navigation
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
@@ -34,6 +35,7 @@ class NavigationActivity : AppCompatActivity() {
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         setUpBottomNavigation()
+        lifecycleScope
     }
 
     override fun onNewIntent(intent: Intent?) {
