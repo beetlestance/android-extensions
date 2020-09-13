@@ -36,6 +36,9 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (savedInstanceState == null) {
+            setupBottomNavigationBar()
+        }
 
         requireBinding().dashboardFragmentToolbar.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -50,7 +53,9 @@ class DashboardFragment : Fragment() {
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        setupBottomNavigationBar()
+        if (savedInstanceState != null) {
+            setupBottomNavigationBar()
+        }
     }
 
     /**

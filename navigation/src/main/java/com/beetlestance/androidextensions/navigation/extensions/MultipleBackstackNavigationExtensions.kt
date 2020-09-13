@@ -1,5 +1,6 @@
 package com.beetlestance.androidextensions.navigation.extensions
 
+import android.util.Log
 import android.util.SparseArray
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.forEach
@@ -113,7 +114,7 @@ private fun BottomNavigationView.setupMultipleBackStack(
     val graphIdToTagMap = SparseArray<String>()
 
     // Result. Mutable live data with the selected controlled
-    var selectedNavController: NavController
+    var selectedNavController: NavController? = null
 
     // First fragment graph index in the provided list
     var firstFragmentGraphId = 0
@@ -146,10 +147,25 @@ private fun BottomNavigationView.setupMultipleBackStack(
         // Save to the map
         graphIdToTagMap[graphId] = fragmentTag
 
-        // Detach nav host fragment.
-        detachNavHostFragment(fragmentManager, navHostFragment)
+        // Attach or detach nav host fragment depending on whether it's the selected item.
+        if (this.selectedItemId == graphId) {
+            Log.d("bottomsheet", "attached $index")
+            selectedNavController = navHostFragment.navController
+            onControllerChange(selectedNavController!!)
+            attachNavHostFragment(
+                fragmentManager,
+                navHostFragment,
+                firstFragmentGraphId == selectedItemId
+            )
+        } else {
+            Log.d("bottomsheet", "detached $index")
+            detachNavHostFragment(fragmentManager, navHostFragment)
+        }
 
-    }.also {
+        // Detach nav host fragment.
+        //detachNavHostFragment(fragmentManager, navHostFragment)
+
+    }/*.also {
         // Selected Item NavHostFragment
         val navHostFragment =
             obtainNavHostFragment(
@@ -169,7 +185,7 @@ private fun BottomNavigationView.setupMultipleBackStack(
             navHostFragment = navHostFragment,
             isPrimaryNavFragment = firstFragmentGraphId == selectedItemId
         )
-    }
+    }*/
 
     // Now connect selecting an item with swapping Fragments
     var selectedItemTag = graphIdToTagMap[selectedItemId]
@@ -226,7 +242,7 @@ private fun BottomNavigationView.setupMultipleBackStack(
                 selectedItemTag = newlySelectedItemTag
                 isOnFirstFragment = selectedItemTag == firstFragmentTag
                 selectedNavController = selectedFragment.navController
-                onControllerChange(selectedNavController)
+                onControllerChange(selectedNavController!!)
                 true
             } else {
                 false
@@ -252,8 +268,9 @@ private fun BottomNavigationView.setupMultipleBackStack(
 
         // Reset the graph if the currentDestination is not valid (happens when the back
         // stack is popped after using the back button).
-        if (selectedNavController.currentDestination == null) {
-            selectedNavController.navigate(selectedNavController.graph.id)
+        if (selectedNavController == null) return@addOnBackStackChangedListener
+        if (selectedNavController!!.currentDestination == null) {
+            selectedNavController!!.navigate(selectedNavController!!.graph.id)
         }
     }
 }
