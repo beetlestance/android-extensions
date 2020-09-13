@@ -94,7 +94,8 @@ private fun storeNavDefaults(
 }
 
 /**
- * Ported from: https://github.com/android/architecture-components-samples/blob/master/NavigationAdvancedSample
+ * Ported from:
+ * https://github.com/android/architecture-components-samples/blob/master/NavigationAdvancedSample
  *
  * Manages the various graphs needed for a [BottomNavigationView].
  * This sample is a workaround until the Navigation Component supports multiple back stacks.
@@ -119,8 +120,8 @@ private fun BottomNavigationView.setupMultipleBackStack(
 
     // First create a NavHostFragment for each NavGraph ID
     //
-    // Should attach the first selected fragment at the last, so that navController is correctly set on
-    // [FragmentContainerView].
+    // Should attach the first selected fragment at the last, so that navController is correctly set
+    // on [FragmentContainerView].
     // See the link below for the changes in Navigation library.
     // https://android.googlesource.com/platform/frameworks/support/+/523601f023afb95f861e94c149c50e4962ea42e3
     mNavGraphIds.forEachIndexed { index, navGraphId ->
@@ -265,8 +266,8 @@ private fun BottomNavigationView.setupMultipleBackStack(
  *
  * How does it work?
  * This function observe for navigate request[NavigateOnceDeeplinkRequest] that may be originated
- * from anywhere in the app through function `DeeplinkNavigator.navigate()` or handleIntentForDeeplink
- * in your launcher Activity.
+ * from anywhere in the app through function `DeeplinkNavigator.navigate()`
+ * or handleIntentForDeeplink in your launcher Activity.
  */
 
 private fun BottomNavigationView.handleDeeplink(
@@ -276,7 +277,7 @@ private fun BottomNavigationView.handleDeeplink(
     request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
 ) {
     val navigator = Navigator.getInstance()
-    navigator.navigateRequest.observe(lifecycleOwner) {
+    navigator.navigateRequest.observe(owner = lifecycleOwner) {
         navigator.handleDeeplink(
             navController = activityNavController,
             bottomNavigationView = this,
@@ -354,6 +355,7 @@ private fun FragmentManager.isOnBackStack(backStackName: String): Boolean {
     return false
 }
 
+@Suppress("HardCodedStringLiteral")
 private fun getFragmentTag(index: Int) = "bottomNavigation#$index"
 
 // Handle deeplink
