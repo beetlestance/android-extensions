@@ -77,7 +77,7 @@ This is the fragment where bottom navigation is setup.
 
 ### Usage
 ```Kotlin
-implementation("com.github.beetlestance.android-extensions:navigation:0.1.0-alpha02")
+implementation("com.github.beetlestance.android-extensions:navigation:0.1.1")
 ```
 
 ### What is the goal and future expectations?
