@@ -27,7 +27,7 @@ class FeedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         args.input?.let {
-            binding?.fragmentFeedArguments?.text = "Arguments: $it"
+            binding?.fragmentFeedArguments?.text = "Arguments: hoo haa $it"
         }
     }
 

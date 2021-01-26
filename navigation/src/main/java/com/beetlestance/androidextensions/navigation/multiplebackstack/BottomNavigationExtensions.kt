@@ -14,7 +14,6 @@ fun BottomNavigationView.setUpWithMultipleBackStack(
     val multipleBackStackNavigator = MultipleBackStackNavigator(
         navGraphIds = navGraphIds,
         fragmentManager = fragmentManager,
-        selectedStackId = this.selectedItemId,
         containerId = containerId,
         stackListener = object : MultipleBackStackNavigator.StackListener {
             override fun onControllerChange(navController: NavController?) {
@@ -26,6 +25,8 @@ fun BottomNavigationView.setUpWithMultipleBackStack(
             }
         }
     )
+
+    multipleBackStackNavigator.setUpStacks(selectedItemId)
 
     setOnNavigationItemSelectedListener { item ->
         multipleBackStackNavigator.selectStack(item.itemId)
