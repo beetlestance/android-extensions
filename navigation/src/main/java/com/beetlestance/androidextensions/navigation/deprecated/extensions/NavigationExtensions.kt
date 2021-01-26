@@ -1,11 +1,11 @@
-package com.beetlestance.androidextensions.navigation.extensions
+package com.beetlestance.androidextensions.navigation.deprecated.extensions
 
 import android.net.Uri
 import androidx.navigation.*
 import androidx.navigation.fragment.FragmentNavigator
-import com.beetlestance.androidextensions.navigation.Navigator
-import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
-import com.beetlestance.androidextensions.navigation.data.NavigateOnceDirectionRequest
+import com.beetlestance.androidextensions.navigation.deprecated.Navigator
+import com.beetlestance.androidextensions.navigation.deprecated.data.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.deprecated.data.NavigateOnceDirectionRequest
 
 
 /**

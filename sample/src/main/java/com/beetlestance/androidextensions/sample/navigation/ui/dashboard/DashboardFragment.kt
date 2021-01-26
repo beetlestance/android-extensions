@@ -8,9 +8,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
-import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
-import com.beetlestance.androidextensions.navigation.extensions.setupMultipleBackStackBottomNavigation
+import com.beetlestance.androidextensions.navigation.deprecated.data.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.deprecated.extensions.navigateOnce
+import com.beetlestance.androidextensions.navigation.deprecated.extensions.setupMultipleBackStackBottomNavigation
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.FragmentDashboardBinding
 import com.beetlestance.androidextensions.sample.utils.DeeplinkValidator

@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.navigation
+package com.beetlestance.androidextensions.navigation.deprecated
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -6,11 +6,11 @@ import android.net.Uri
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy.RETAIN_AND_DISCARD
-import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
-import com.beetlestance.androidextensions.navigation.extensions.navigateDeeplink
-import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
-import com.beetlestance.androidextensions.navigation.util.toSingleEvent
+import com.beetlestance.androidextensions.navigation.deprecated.DeeplinkNavigationPolicy.RETAIN_AND_DISCARD
+import com.beetlestance.androidextensions.navigation.deprecated.data.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.deprecated.extensions.navigateDeeplink
+import com.beetlestance.androidextensions.navigation.deprecated.extensions.navigateOnce
+import com.beetlestance.androidextensions.navigation.deprecated.util.toSingleEvent
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**

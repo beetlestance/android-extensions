@@ -5,9 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy
-import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
-import com.beetlestance.androidextensions.navigation.extensions.setUpDeeplinkNavigationBehavior
+import com.beetlestance.androidextensions.navigation.deprecated.DeeplinkNavigationPolicy
+import com.beetlestance.androidextensions.navigation.deprecated.extensions.handleDeeplinkIntent
+import com.beetlestance.androidextensions.navigation.deprecated.extensions.setUpDeeplinkNavigationBehavior
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.ActivityNavigationWithPrimaryFragmentBinding
 import dagger.hilt.android.AndroidEntryPoint

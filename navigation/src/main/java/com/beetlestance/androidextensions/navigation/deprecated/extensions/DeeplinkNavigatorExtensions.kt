@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.navigation.extensions
+package com.beetlestance.androidextensions.navigation.deprecated.extensions
 
 import android.content.Intent
 import androidx.annotation.IdRes
@@ -8,8 +8,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy
-import com.beetlestance.androidextensions.navigation.Navigator
+import com.beetlestance.androidextensions.navigation.deprecated.DeeplinkNavigationPolicy
+import com.beetlestance.androidextensions.navigation.deprecated.Navigator
 
 
 /**

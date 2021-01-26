@@ -9,8 +9,8 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
-import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.deprecated.DeeplinkNavigator
+import com.beetlestance.androidextensions.navigation.deprecated.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.sample.navigation.constants.FEED_DEEPLINK
 import com.beetlestance.androidextensions.sample.navigation.constants.HOME_DEEPLINK
 import com.beetlestance.androidextensions.sample.navigation.constants.SEARCH_DEEPLINK

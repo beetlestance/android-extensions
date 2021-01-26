@@ -6,9 +6,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
-import com.beetlestance.androidextensions.navigation.extensions.handleDeeplinkIntent
-import com.beetlestance.androidextensions.navigation.extensions.setupMultipleBackStackBottomNavigation
+import com.beetlestance.androidextensions.navigation.deprecated.data.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.deprecated.extensions.handleDeeplinkIntent
+import com.beetlestance.androidextensions.navigation.deprecated.extensions.setupMultipleBackStackBottomNavigation
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.ActivityNavigationBinding
 import com.beetlestance.androidextensions.sample.utils.DeeplinkValidator

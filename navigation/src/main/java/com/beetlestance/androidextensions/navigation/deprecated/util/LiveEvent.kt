@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.navigation.util
+package com.beetlestance.androidextensions.navigation.deprecated.util
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleOwner

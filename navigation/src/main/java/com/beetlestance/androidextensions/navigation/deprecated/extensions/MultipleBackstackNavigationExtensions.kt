@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.navigation.extensions
+package com.beetlestance.androidextensions.navigation.deprecated.extensions
 
 import android.util.Log
 import android.util.SparseArray
@@ -13,9 +13,9 @@ import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
-import com.beetlestance.androidextensions.navigation.Navigator
-import com.beetlestance.androidextensions.navigation.data.NavAnimations
-import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.deprecated.Navigator
+import com.beetlestance.androidextensions.navigation.deprecated.data.NavAnimations
+import com.beetlestance.androidextensions.navigation.deprecated.data.NavigateOnceDeeplinkRequest
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 // global variable to store user provided navGraphids

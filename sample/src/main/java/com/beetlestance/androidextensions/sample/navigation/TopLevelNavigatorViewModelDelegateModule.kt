@@ -1,6 +1,6 @@
 package com.beetlestance.androidextensions.sample.navigation
 
-import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
+import com.beetlestance.androidextensions.navigation.deprecated.DeeplinkNavigator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

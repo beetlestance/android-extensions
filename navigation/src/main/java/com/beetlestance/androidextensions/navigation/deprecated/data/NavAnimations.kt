@@ -1,4 +1,4 @@
-package com.beetlestance.androidextensions.navigation.data
+package com.beetlestance.androidextensions.navigation.deprecated.data
 
 import com.beetlestance.androidextensions.navigation.R
 
