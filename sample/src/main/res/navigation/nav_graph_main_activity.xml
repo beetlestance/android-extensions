@@ -14,8 +14,8 @@
         <action
             android:id="@+id/to_dashboardFragment"
             app:destination="@id/dashboardFragment"
-            app:enterAnim="@anim/fragment_open_enter"
-            app:popEnterAnim="@anim/fragment_close_enter"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popUpTo="@id/nav_graph_main_activity"
             app:popUpToInclusive="true" />
 
