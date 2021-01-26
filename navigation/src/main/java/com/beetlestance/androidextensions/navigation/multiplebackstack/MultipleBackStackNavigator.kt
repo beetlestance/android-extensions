@@ -20,15 +20,17 @@ class MultipleBackStackNavigator(
     private val graphIdToTagMap = SparseArray<String>()
 
     // FirstFragment GraphId
-    // to get first NavHostTag
     private var firstFragmentGraphId = 0
 
-    // Currently selected stack tag
-    private var selectedStackTag: String = ""
+    private val selectedStackTag: String?
+        get() = graphIdToTagMap[selectedStackId]
+
+    // Selected stack at any moment
+    private var selectedStackId: Int = 0
 
     // First stack of the list
-    // to add first NavHost to backstack
-    private var firstFragmentTag: String = ""
+    private val firstFragmentTag: String?
+        get() = graphIdToTagMap[firstFragmentGraphId]
 
     // Check if the first stack is selected
     private var isOnFirstFragment = selectedStackTag == firstFragmentTag
@@ -40,22 +42,19 @@ class MultipleBackStackNavigator(
             stackListener.onControllerChange(value)
         }
 
-    private var currentSelectedId: Int = 0
-
     init {
-        // Called when device back is pressed
+
+        // Validate the stack at every back stack change
         fragmentManager.addOnBackStackChangedListener {
-            val lastEntryName = fragmentManager.lastBackStackEntryName()
-            if (selectedStackTag != lastEntryName) {
-                val index = graphIdToTagMap.indexOfValue(lastEntryName)
+            val backStackEntryTag = fragmentManager.lastBackStackEntryTag()
+            if (selectedStackTag != backStackEntryTag) {
+                val index = graphIdToTagMap.indexOfValue(backStackEntryTag)
                 if (index < 0) {
-                    selectedStackTag = firstFragmentTag
-                    currentSelectedId = firstFragmentGraphId
+                    selectedStackId = firstFragmentGraphId
                     stackListener.onStackChange(firstFragmentGraphId)
                 } else {
                     val graphId = graphIdToTagMap.keyAt(index)
-                    selectedStackTag = lastEntryName!!
-                    currentSelectedId = firstFragmentGraphId
+                    selectedStackId = graphId
                     stackListener.onStackChange(graphId)
                 }
             }
@@ -70,7 +69,7 @@ class MultipleBackStackNavigator(
         }
     }
 
-    private fun FragmentManager.lastBackStackEntryName(): String? {
+    private fun FragmentManager.lastBackStackEntryTag(): String? {
         return if (backStackEntryCount == 0) null
         else getBackStackEntryAt(backStackEntryCount - 1).name
     }
@@ -113,9 +112,7 @@ class MultipleBackStackNavigator(
         }
 
         // graphIdTagMap is created
-        selectedStackTag = graphIdToTagMap[selectedStackId]
-        firstFragmentTag = graphIdToTagMap[firstFragmentGraphId]
-        currentSelectedId = selectedStackId
+        this.selectedStackId = selectedStackId
     }
 
     /**
@@ -130,22 +127,14 @@ class MultipleBackStackNavigator(
             // Find the tag for requested stack
             val newlySelectedItemTag = graphIdToTagMap[newSelectedId]
 
-            // different stack is selected than the requested one
+            // different stack is selected than the current one
             if (selectedStackTag != newlySelectedItemTag) {
-                // Only first fragment will remain is backstack
-                // Pop everything above the first fragment (the "fixed start destination")
-//                fragmentManager.popBackStack(
-//                    firstFragmentTag,
-//                    FragmentManager.POP_BACK_STACK_INCLUSIVE
-//                )
+
                 val selectedFragment = fragmentManager.findFragmentByTag(newlySelectedItemTag)
                         as NavHostFragment
 
-
-                // Exclude the first fragment tag because it's always in the back stack.
-                //if (firstFragmentTag != newlySelectedItemTag) {
-                // Commit a transaction that cleans the back stack and adds the first fragment
-                // to it, creating the fixed started destination.
+                // Commit a transaction that adds to the current backstack,
+                // creating the fixed started destination.
                 fragmentManager.beginTransaction()
                     .setCustomAnimations(
                         R.anim.nav_default_enter_anim,
@@ -156,18 +145,16 @@ class MultipleBackStackNavigator(
                     .attach(selectedFragment)
                     .setPrimaryNavigationFragment(selectedFragment)
                     .apply {
-                        // Detach all other Fragments
-                        // This part puts first NavHost fragment in the backstack
+                        // add previous entry stack entry to backstack
                         fragmentManager.createBackStack(this)
                     }
                     .addToBackStack(newlySelectedItemTag)
                     .setReorderingAllowed(true)
                     .commit()
-                // }
-                selectedStackTag = newlySelectedItemTag
+
+                selectedStackId = newSelectedId
                 isOnFirstFragment = selectedStackTag == firstFragmentTag
                 selectedNavController = selectedFragment.navController
-                currentSelectedId = newSelectedId
                 true
             } else {
                 true
@@ -214,7 +201,7 @@ class MultipleBackStackNavigator(
             val canHandleDeeplink = navHostFragment.navController.graph.hasDeepLink(deeplink)
 
             if (canHandleDeeplink) {
-                if (currentSelectedId != navHostFragment.navController.graph.id) {
+                if (selectedStackId != navHostFragment.navController.graph.id) {
                     stackListener.onStackChange(navHostFragment.navController.graph.id)
                 }
                 navHostFragment.navController.navigate(deeplink)
