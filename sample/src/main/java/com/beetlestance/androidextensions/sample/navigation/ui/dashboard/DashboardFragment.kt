@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -11,8 +12,11 @@ import androidx.navigation.fragment.findNavController
 import com.beetlestance.androidextensions.navigation.deprecated.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.navigation.deprecated.extensions.navigateOnce
 import com.beetlestance.androidextensions.navigation.deprecated.extensions.setupMultipleBackStackBottomNavigation
+import com.beetlestance.androidextensions.navigation.multiplebackstack.MultipleBackStackNavigator
+import com.beetlestance.androidextensions.navigation.multiplebackstack.setUpWithMultipleBackStack
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.FragmentDashboardBinding
+import com.beetlestance.androidextensions.sample.navigation.constants.FEED_DEEPLINK
 import com.beetlestance.androidextensions.sample.utils.DeeplinkValidator
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,6 +27,7 @@ class DashboardFragment : Fragment() {
 
     private var binding: FragmentDashboardBinding? = null
     private var currentNavController: NavController? = null
+    private var multipleBackStackNavigator: MultipleBackStackNavigator? = null
 
     private fun requireBinding(): FragmentDashboardBinding = requireNotNull(binding)
 
@@ -43,7 +48,10 @@ class DashboardFragment : Fragment() {
         requireBinding().dashboardFragmentToolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.dashboard_notification -> {
-                    findNavController().navigateOnce(viewModel.navigateToNotificationFragment())
+                    multipleBackStackNavigator?.navigateToDeeplink(
+                        FEED_DEEPLINK.format("yay").toUri()
+                    )
+                    //findNavController().navigateOnce(viewModel.navigateToNotificationFragment())
                     true
                 }
                 else -> false
@@ -63,20 +71,21 @@ class DashboardFragment : Fragment() {
      */
     private fun setupBottomNavigationBar() {
         // Setup the bottom navigation view with a list of navigation graphs
-        setupMultipleBackStackBottomNavigation(
-            navGraphIds = NAV_GRAPH_IDS,
-            containerId = requireBinding().navHostFragmentDashboard.id,
-            bottomNavigationView = requireBinding().dashboardFragmentBottomNavigation,
-            validatedRequest = ::validateDeeplink,
-            onControllerChange = ::onControllerChange
-        )
+        multipleBackStackNavigator =
+            requireBinding().dashboardFragmentBottomNavigation.setUpWithMultipleBackStack(
+                navGraphIds = NAV_GRAPH_IDS,
+                fragmentManager = childFragmentManager,
+                containerId = requireBinding().navHostFragmentDashboard.id
+            )
+
+        multipleBackStackNavigator?.onControllerChange(::onControllerChange)
     }
 
-    private fun onControllerChange(navController: NavController) {
+    private fun onControllerChange(navController: NavController?) {
         currentNavController = navController
 
         // Choose when to show/hide the Bottom Navigation View
-        navController.addOnDestinationChangedListener { _, destination, _ ->
+        navController?.addOnDestinationChangedListener { _, destination, _ ->
 
             when {
                 TOP_LEVEL_DESTINATION.contains(destination.id) -> {
