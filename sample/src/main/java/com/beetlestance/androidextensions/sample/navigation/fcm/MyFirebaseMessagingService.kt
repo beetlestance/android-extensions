@@ -67,10 +67,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         return notificationBuilder.build()
     }
-
-    override fun onNewToken(token: String) {
-        super.onNewToken(token)
-    }
 }
 
 data class NotificationTrayItems(

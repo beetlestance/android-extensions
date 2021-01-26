@@ -19,7 +19,7 @@ class SplashFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // set view to null if windowBackground is set and there is no authenticate or async call
         // else set imageResource same as window background to remove white or black screen on app start
         return FragmentSplashBinding.inflate(inflater, container, false).root

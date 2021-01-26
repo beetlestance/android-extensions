@@ -4,16 +4,16 @@ import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 
 @Module
-@InstallIn(ApplicationComponent::class)
+@InstallIn(SingletonComponent::class)
 object TopLevelNavigatorViewModelDelegateModule {
 
     @Singleton
     @Provides
-    fun provideTopLevelNavigator() = DeeplinkNavigator
+    fun provideTopLevelNavigator(): DeeplinkNavigator = DeeplinkNavigator
 }
 

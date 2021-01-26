@@ -23,7 +23,8 @@ private val actionsDestination: HashMap<String, String> = hashMapOf<String, Stri
 
 /**
  * @param context to create pending intent
- * @param notificationPayload to check for action and other attributes send via server in additional data
+ * @param notificationPayload to check for action and other attributes send via server in additional
+ * data
  * @return PendingIntent
  * */
 fun pendingIntentForAction(
@@ -33,7 +34,7 @@ fun pendingIntentForAction(
     val deepLink = notificationDeeplink(notificationPayload.action)
     val notifyIntent = context.createNotifyIntent(deepLink)
 
-    return notifyIntent?.let { PendingIntent.getActivity(context, 0, it, FLAG_UPDATE_CURRENT) }
+    return PendingIntent.getActivity(context, 0, notifyIntent, FLAG_UPDATE_CURRENT)
 }
 
 /*
@@ -59,6 +60,6 @@ private fun deeplinkArgs(action: String): String {
 /*
 * create PendingIntent for given deeplink
 * */
-private fun Context.createNotifyIntent(deepLink: Uri?): Intent? {
+private fun Context.createNotifyIntent(deepLink: Uri?): Intent {
     return Intent(this, NavigationActivityWithPrimaryFragment::class.java).apply { data = deepLink }
 }

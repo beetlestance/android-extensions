@@ -1,5 +1,6 @@
 package com.beetlestance.androidextensions.navigation
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import androidx.fragment.app.FragmentManager
@@ -117,7 +118,7 @@ internal class Navigator private constructor() {
         handleIntent: (intent: Intent?) -> Unit = {}
     ) {
         val deeplinkRequest = when {
-            intent?.data != null -> NavigateOnceDeeplinkRequest(deeplink = intent.data!!)
+            intent?.data != null -> NavigateOnceDeeplinkRequest(deeplink = intent.data ?: return)
             else -> null
         }
 
@@ -164,6 +165,7 @@ internal class Navigator private constructor() {
         private var deeplinkNavigatorInstance: Navigator? = null
 
         // Provide single instance for [Navigator]
+        @SuppressLint("SyntheticAccessor")
         fun getInstance(): Navigator {
             return deeplinkNavigatorInstance ?: Navigator().also { navigator ->
                 deeplinkNavigatorInstance = navigator

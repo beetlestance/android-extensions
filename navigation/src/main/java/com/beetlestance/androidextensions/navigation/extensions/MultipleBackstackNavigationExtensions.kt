@@ -151,7 +151,7 @@ private fun BottomNavigationView.setupMultipleBackStack(
         if (this.selectedItemId == graphId) {
             Log.d("bottomsheet", "attached $index")
             selectedNavController = navHostFragment.navController
-            onControllerChange(selectedNavController!!)
+            onControllerChange(selectedNavController ?: return@forEachIndexed)
             attachNavHostFragment(
                 fragmentManager,
                 navHostFragment,
@@ -268,9 +268,10 @@ private fun BottomNavigationView.setupMultipleBackStack(
 
         // Reset the graph if the currentDestination is not valid (happens when the back
         // stack is popped after using the back button).
-        if (selectedNavController == null) return@addOnBackStackChangedListener
-        if (selectedNavController!!.currentDestination == null) {
-            selectedNavController!!.navigate(selectedNavController!!.graph.id)
+        selectedNavController?.let { navController ->
+            if (navController.currentDestination == null) {
+                navController.navigate(navController.graph.id)
+            }
         }
     }
 }

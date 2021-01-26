@@ -1,8 +1,6 @@
 package com.beetlestance.androidextensions.sample.utils
 
-import android.content.Context
 import android.net.Uri
-import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton

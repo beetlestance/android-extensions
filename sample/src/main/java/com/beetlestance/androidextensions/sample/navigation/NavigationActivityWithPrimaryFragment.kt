@@ -1,5 +1,6 @@
 package com.beetlestance.androidextensions.sample.navigation
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,7 @@ import com.beetlestance.androidextensions.sample.databinding.ActivityNavigationW
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
+@SuppressLint("GoogleAppIndexingApiWarning")
 class NavigationActivityWithPrimaryFragment : AppCompatActivity() {
 
     lateinit var binding: ActivityNavigationWithPrimaryFragmentBinding

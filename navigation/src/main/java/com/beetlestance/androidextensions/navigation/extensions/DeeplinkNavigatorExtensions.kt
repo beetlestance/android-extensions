@@ -6,7 +6,6 @@ import androidx.annotation.NavigationRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
-import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy
@@ -55,7 +54,7 @@ fun AppCompatActivity.setUpDeeplinkNavigationBehavior(
 
 fun FragmentActivity.setUpPrimaryFragment(@IdRes primaryFragmentId: Int) {
     val navigator = Navigator.getInstance()
-    val navController = getNavController(navigator.parentNavHostContainerId!!)
+    val navController = getNavController(navigator.parentNavHostContainerId ?: return)
 
     navigator.onDestinationChangeListener?.let {
         navController.removeOnDestinationChangedListener(it)
@@ -74,7 +73,7 @@ fun FragmentActivity.setUpPrimaryFragment(@IdRes primaryFragmentId: Int) {
 
         }
 
-    navController.addOnDestinationChangedListener(navigator.onDestinationChangeListener!!)
+    navController.addOnDestinationChangedListener(navigator.onDestinationChangeListener ?: return)
 
     navigator.popToPrimaryFragment.removeObservers(this)
 

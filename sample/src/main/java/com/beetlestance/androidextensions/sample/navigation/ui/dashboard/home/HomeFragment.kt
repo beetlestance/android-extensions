@@ -1,5 +1,6 @@
 package com.beetlestance.androidextensions.sample.navigation.ui.dashboard.home
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,10 +11,10 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.sample.databinding.FragmentHomeBinding
 import com.beetlestance.androidextensions.sample.navigation.constants.FEED_DEEPLINK
 import com.beetlestance.androidextensions.sample.navigation.constants.NOTIFICATION_DEEPLINK
 import com.beetlestance.androidextensions.sample.navigation.constants.SEARCH_DEEPLINK
-import com.beetlestance.androidextensions.sample.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -27,8 +28,8 @@ class HomeFragment : Fragment() {
     @Inject
     lateinit var deeplinkNavigator: DeeplinkNavigator
 
-    var multipleInstancesAllowed: Boolean = false
-    var shouldUpdateArguments: Boolean = false
+    private var multipleInstancesAllowed: Boolean = false
+    private var shouldUpdateArguments: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +39,7 @@ class HomeFragment : Fragment() {
         return binding?.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         args.input?.let {
@@ -56,8 +58,10 @@ class HomeFragment : Fragment() {
         }
 
         binding?.fragmentHomeOpenFeed?.setOnClickListener {
-            val input =
-                if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
+            val input = if (shouldUpdateArguments) {
+                binding?.fragmentHomeInputArguments?.editText?.text?.toString()
+            } else null
+
             deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
                     deeplink = FEED_DEEPLINK.format(input).toUri(),
@@ -68,8 +72,10 @@ class HomeFragment : Fragment() {
         }
 
         binding?.fragmentHomeOpenNotification?.setOnClickListener {
-            val input =
-                if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
+            val input = if (shouldUpdateArguments) {
+                binding?.fragmentHomeInputArguments?.editText?.text?.toString()
+            } else null
+
             deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
                     deeplink = NOTIFICATION_DEEPLINK.format(input).toUri(),
@@ -80,8 +86,10 @@ class HomeFragment : Fragment() {
         }
 
         binding?.fragmentHomeOpenSearch?.setOnClickListener {
-            val input =
-                if (shouldUpdateArguments) binding?.fragmentHomeInputArguments?.editText?.text?.toString() else null
+            val input = if (shouldUpdateArguments) {
+                binding?.fragmentHomeInputArguments?.editText?.text?.toString()
+            } else null
+
             deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
                     deeplink = SEARCH_DEEPLINK.format(input).toUri(),

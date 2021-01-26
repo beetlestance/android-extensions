@@ -1,5 +1,6 @@
 package com.beetlestance.androidextensions.sample.navigation
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -14,9 +15,10 @@ import com.beetlestance.androidextensions.sample.utils.DeeplinkValidator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
+@SuppressLint("GoogleAppIndexingApiWarning")
 class NavigationActivity : AppCompatActivity() {
 
-    lateinit var binding: ActivityNavigationBinding
+    private lateinit var binding: ActivityNavigationBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.SampleApp_MainActivityTheme)

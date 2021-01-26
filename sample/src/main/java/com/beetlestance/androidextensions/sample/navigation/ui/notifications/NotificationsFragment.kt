@@ -1,5 +1,6 @@
 package com.beetlestance.androidextensions.sample.navigation.ui.notifications
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -30,17 +31,18 @@ class NotificationsFragment : Fragment() {
 
     private fun requireBinding(): FragmentNotificationsBinding = requireNotNull(binding)
 
-    var multipleInstancesAllowed: Boolean = false
-    var shouldUpdateArguments: Boolean = false
+    private var multipleInstancesAllowed: Boolean = false
+    private var shouldUpdateArguments: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentNotificationsBinding.inflate(inflater, container, false)
         return requireBinding().root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
