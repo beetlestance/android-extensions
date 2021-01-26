@@ -75,10 +75,9 @@ class DashboardFragment : Fragment() {
             requireBinding().dashboardFragmentBottomNavigation.setUpWithMultipleBackStack(
                 navGraphIds = NAV_GRAPH_IDS,
                 fragmentManager = childFragmentManager,
-                containerId = requireBinding().navHostFragmentDashboard.id
+                containerId = requireBinding().navHostFragmentDashboard.id,
+                onControllerChange = ::onControllerChange
             )
-
-        multipleBackStackNavigator?.onControllerChange(::onControllerChange)
     }
 
     private fun onControllerChange(navController: NavController?) {
