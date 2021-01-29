@@ -168,9 +168,13 @@ class MultipleBackStackNavigator(
         // Find the fragment associated with the tag
         val fragment = fragmentManager.findFragmentByTag(navHostFragmentTag) as NavHostFragment
 
+        if (selectedNavHostTag == navHostFragmentTag) return true
 
         // pop backstack if any
-        fragmentManager.popBackStack(primaryNavHostTag, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        fragmentManager.popBackStack(
+            primaryNavHostTag,
+            FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
 
         pushToBackstack(navHostFragmentTag)
 
@@ -201,28 +205,6 @@ class MultipleBackStackNavigator(
             fragmentNavController.navigate(selectedId)
         }
         return true
-    }
-
-    private fun validateBackstack() {
-        if (fragmentManager.isStateSaved) return
-        if (fragmentManager.backStackEntryCount > 3) {
-            val popToBackstackEntryName =
-                fragmentManager.getBackStackEntryAt(fragmentManager.backStackEntryCount - 3).name
-            fragmentManager.popBackStack(
-                popToBackstackEntryName,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
-        }
-    }
-
-    private fun FragmentTransaction.detachLastFragment() {
-        val lastEntryName = fragmentManager.lastBackStackOrPrimaryEntryTag()
-        detach(fragmentManager.findFragmentByTag(lastEntryName)!!)
-    }
-
-    private fun FragmentManager.lastBackStackOrPrimaryEntryTag(): String {
-        return if (backStackEntryCount > 0) getBackStackEntryAt(backStackEntryCount - 1).name!!
-        else primaryNavHostTag
     }
 
     /**
