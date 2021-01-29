@@ -47,7 +47,11 @@ class DashboardFragment : Fragment() {
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            if (multipleBackStackNavigator?.popBackstack() != true) requireActivity().finish()
+            if (multipleBackStackNavigator?.popBackstack() != true) {
+                if (findNavController().popBackStack().not()) {
+                    requireActivity().finish()
+                }
+            }
         }
 
         requireBinding().dashboardFragmentToolbar.setOnMenuItemClickListener {

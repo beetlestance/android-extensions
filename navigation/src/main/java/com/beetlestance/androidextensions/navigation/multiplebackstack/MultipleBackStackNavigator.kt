@@ -69,13 +69,24 @@ class MultipleBackStackNavigator(
         }
     }
 
-    private fun removeBackstack() {
+    private fun removeBackstack(): Boolean {
         // remove last history
-        val removedHistory = backStackHistory.removeAt(backStackHistory.lastIndex)
-        // if the removed history and next history is same remove again
-        // this can happen when backstack history count is reached and we remove old history
-        if (removedHistory == backStackHistory.lastOrNull()) {
-            backStackHistory.removeAt(backStackHistory.lastIndex)
+        return if (backStackHistory.isNotEmpty()) {
+            val removedHistory = backStackHistory.removeLast()
+
+            if (backStackHistory.isEmpty()) {
+                return false
+            }
+
+            // if the removed history and next history is same remove again
+            // this can happen when backstack history count is reached and we remove old history
+            if (removedHistory == backStackHistory.lastOrNull()) {
+                removeBackstack()
+            } else {
+                return true
+            }
+        } else {
+            return false
         }
     }
 
@@ -89,8 +100,8 @@ class MultipleBackStackNavigator(
 
     @Synchronized
     fun popBackstack(): Boolean {
-        removeBackstack()
-        return if (backStackHistory.isNotEmpty()) {
+        val backStackChanged = removeBackstack()
+        return if (backStackChanged) {
             val newHost =
                 fragmentManager.findFragmentByTag(backStackHistory.last()) as NavHostFragment
             stackListener?.onStackChange(newHost.navController.graph.id)
