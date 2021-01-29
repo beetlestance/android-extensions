@@ -64,6 +64,7 @@ class MultipleBackStackNavigator(
 
 
     init {
+        // this calls means nothing, as there is no backstack being created
         fragmentManager.addOnBackStackChangedListener {
             Log.w("BackStackChangeListener", "BackStack is managed by MultipleBackStackNavigator")
         }
@@ -74,6 +75,7 @@ class MultipleBackStackNavigator(
         return if (backStackHistory.isNotEmpty()) {
             val removedHistory = backStackHistory.removeLast()
 
+            // return false if backstack does not have any history
             if (backStackHistory.isEmpty()) {
                 return false
             }
@@ -133,6 +135,8 @@ class MultipleBackStackNavigator(
 
             // Find or create the Navigation host fragment
             // Find will be in case of restore fragment state
+            // Adds all the NavHostFragment to active fragment transactions
+            // These will be actively managed by FragmentManager
             val navHostFragment = obtainNavHostFragment(
                 fragmentManager,
                 fragmentTag,
@@ -158,6 +162,8 @@ class MultipleBackStackNavigator(
                 pushToBackstack(fragmentTag)
                 selectedNavHostTag = fragmentTag
                 selectedNavController = navHostFragment.navController
+
+                // attach the primary fragment to container
                 attachNavHostFragment(
                     fragmentManager,
                     navHostFragment,
