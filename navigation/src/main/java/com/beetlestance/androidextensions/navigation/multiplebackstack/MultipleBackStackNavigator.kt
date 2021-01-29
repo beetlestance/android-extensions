@@ -115,7 +115,7 @@ class MultipleBackStackNavigator(
      * To setUp fragmentManager with multiple [NavHostFragment], one for each graph
      * Attaches the required NavHostFragment to container
      */
-    fun setUpNavHostFragments(selectedId: Int) {
+    fun setUpNavHostFragments() {
         navGraphIds.forEachIndexed { index, navGraphId ->
             // get unique fragment tag for each NavHostFragment
             val fragmentTag = getFragmentTag(index)
@@ -156,9 +156,6 @@ class MultipleBackStackNavigator(
                 detachNavHostFragment(fragmentManager, navHostFragment)
             }
         }
-
-        // move to selectedId here
-        selectNavHostFragment(selectedId)
     }
 
     fun selectNavHostFragment(selectedId: Int): Boolean {

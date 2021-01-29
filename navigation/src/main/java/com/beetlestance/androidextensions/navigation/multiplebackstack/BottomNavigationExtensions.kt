@@ -33,7 +33,8 @@ fun BottomNavigationView.setUpWithMultipleBackStack(
     })
 
 
-    multipleBackStackNavigator.setUpNavHostFragments(selectedItemId)
+    multipleBackStackNavigator.setUpNavHostFragments()
+    multipleBackStackNavigator.selectNavHostFragment(selectedItemId)
 
     setOnNavigationItemSelectedListener { item ->
         multipleBackStackNavigator.selectNavHostFragment(item.itemId)
