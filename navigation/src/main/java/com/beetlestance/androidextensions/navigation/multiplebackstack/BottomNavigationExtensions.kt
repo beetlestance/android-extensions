@@ -9,27 +9,34 @@ fun BottomNavigationView.setUpWithMultipleBackStack(
     navGraphIds: List<Int>,
     fragmentManager: FragmentManager,
     containerId: Int,
+    primaryIndex: Int = 0,
+    backstackHistoryCount: Int,
     onControllerChange: (NavController?) -> Unit = {}
 ): MultipleBackStackNavigator {
     val multipleBackStackNavigator = MultipleBackStackNavigator(
         navGraphIds = navGraphIds,
         fragmentManager = fragmentManager,
         containerId = containerId,
-        stackListener = object : MultipleBackStackNavigator.StackListener {
-            override fun onControllerChange(navController: NavController?) {
-                onControllerChange(navController)
-            }
-
-            override fun onStackChange(stackId: Int) {
-                selectedItemId = stackId
-            }
-        }
+        primarySelectedIndex = primaryIndex,
+        backstackHistoryCount = backstackHistoryCount
     )
 
-    multipleBackStackNavigator.setUpStacks(selectedItemId)
+    multipleBackStackNavigator.setFragmentStackListener(stackListener = object :
+        MultipleBackStackNavigator.StackListener {
+        override fun onControllerChange(navController: NavController?) {
+            onControllerChange(navController)
+        }
+
+        override fun onStackChange(graphId: Int) {
+            selectedItemId = graphId
+        }
+    })
+
+
+    multipleBackStackNavigator.setUpNavHostFragments(selectedItemId)
 
     setOnNavigationItemSelectedListener { item ->
-        multipleBackStackNavigator.selectStack(item.itemId)
+        multipleBackStackNavigator.selectNavHostFragment(item.itemId)
     }
 
     setupItemReselected(multipleBackStackNavigator)

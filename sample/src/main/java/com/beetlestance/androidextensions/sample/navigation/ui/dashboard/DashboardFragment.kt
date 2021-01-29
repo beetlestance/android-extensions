@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -45,6 +46,10 @@ class DashboardFragment : Fragment() {
             setupBottomNavigationBar()
         }
 
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if (multipleBackStackNavigator?.popBackstack() != true) requireActivity().finish()
+        }
+
         requireBinding().dashboardFragmentToolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.dashboard_notification -> {
@@ -75,6 +80,8 @@ class DashboardFragment : Fragment() {
             requireBinding().dashboardFragmentBottomNavigation.setUpWithMultipleBackStack(
                 navGraphIds = NAV_GRAPH_IDS,
                 fragmentManager = childFragmentManager,
+                primaryIndex = 0,
+                backstackHistoryCount = 4,
                 containerId = requireBinding().navHostFragmentDashboard.id,
                 onControllerChange = ::onControllerChange
             )
