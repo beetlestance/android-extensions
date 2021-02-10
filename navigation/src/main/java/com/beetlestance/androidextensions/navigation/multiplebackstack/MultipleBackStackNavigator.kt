@@ -147,11 +147,12 @@ class MultipleBackStackManager(
         // if selected and incoming fragment is same do not do anything
         if (selectedGraphId == selectedId) return true
 
+        // we are not managing any backstack from FragmentManager itself
         // pop backstack if any
-//        fragmentManager.popBackStack(
-//            primaryNavHostTag,
-//            FragmentManager.POP_BACK_STACK_INCLUSIVE
-//        )
+        // fragmentManager.popBackStack(
+        // primaryNavHostTag,
+        // FragmentManager.POP_BACK_STACK_INCLUSIVE
+        // )
 
         fragmentManager.commitNow {
             setCustomAnimations(
