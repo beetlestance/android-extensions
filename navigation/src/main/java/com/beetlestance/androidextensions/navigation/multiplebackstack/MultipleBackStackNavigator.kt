@@ -103,7 +103,6 @@ class MultipleBackStackManager(
 
             // Attach or detach nav host fragment depending on whether it's the selected one.
             // When app starts selected history and primaryId is same
-            // this should be done with primaryIndex
             if (index == primarySelectedIndex) {
                 primaryGraphId = graphId
                 // push primary fragment to backstack
