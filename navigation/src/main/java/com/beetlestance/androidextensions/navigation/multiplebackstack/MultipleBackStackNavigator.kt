@@ -40,9 +40,6 @@ class MultipleBackStackManager(
     // Stores NavHostFragment tag with graphIds
     private val graphIdToTagMap = SparseArray<String>()
 
-    // Primary fragment NavHost tag
-    private var primaryGraphId: Int = 0
-
     // Currently selected NavHost tag
     private var selectedGraphId: Int = 0
 
@@ -104,7 +101,6 @@ class MultipleBackStackManager(
             // Attach or detach nav host fragment depending on whether it's the selected one.
             // When app starts selected history and primaryId is same
             if (index == primarySelectedIndex) {
-                primaryGraphId = graphId
                 // push primary fragment to backstack
                 pushToBackstack(graphId)
                 selectedGraphId = graphId
