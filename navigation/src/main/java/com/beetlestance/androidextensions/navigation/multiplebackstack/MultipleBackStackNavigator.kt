@@ -131,7 +131,7 @@ class MultipleBackStackManager(
      * Responsibility:
      * To select the particular [NavHostFragment] base on graph id
      */
-    fun selectNavHostFragment(selectedId: Int, addToBackStack: Boolean): Boolean {
+    private fun selectNavHostFragment(selectedId: Int, addToBackStack: Boolean): Boolean {
         // Don't do anything if the state is state has already been saved.
         if (fragmentManager.isStateSaved) return false
 
