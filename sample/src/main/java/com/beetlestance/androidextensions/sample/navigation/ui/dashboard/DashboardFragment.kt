@@ -88,7 +88,8 @@ class DashboardFragment : Fragment() {
                 fragmentManager = childFragmentManager,
                 primaryIndex = 0,
                 containerId = requireBinding().navHostFragmentDashboard.id,
-                onControllerChange = ::onControllerChange
+                onControllerChange = ::onControllerChange,
+                historyEnabled = true
             )
     }
 
