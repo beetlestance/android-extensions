@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.beetlestance.androidextensions.navigation.deprecated.DeeplinkNavigator
 import com.beetlestance.androidextensions.navigation.deprecated.data.NavigateOnceDeeplinkRequest
@@ -90,12 +92,13 @@ class HomeFragment : Fragment() {
                 binding?.fragmentHomeInputArguments?.editText?.text?.toString()
             } else null
 
-            deeplinkNavigator.navigate(
-                NavigateOnceDeeplinkRequest(
-                    deeplink = SEARCH_DEEPLINK.format(input).toUri(),
-                    updateArguments = shouldUpdateArguments,
-                    allowMultipleInstance = multipleInstancesAllowed
-                )
+            val options = NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .build()
+            
+            findNavController().navigate(
+                HomeFragmentDirections.toSearchFragment(input = input),
+                options
             )
         }
     }

@@ -17,8 +17,29 @@
 
         <argument
             android:name="input"
-            app:argType="string"
             android:defaultValue="null"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/to_searchFragment"
+            app:destination="@id/searchFragment"
+            app:launchSingleTop="true" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.beetlestance.androidextensions.sample.navigation.ui.dashboard.search.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search">
+
+        <deepLink
+            android:id="@+id/searchDeeplink"
+            app:uri="beetlestance/extensions-sample-search?input={input}" />
+        <argument
+            android:name="input"
+            android:defaultValue="null"
+            app:argType="string"
             app:nullable="true" />
 
     </fragment>

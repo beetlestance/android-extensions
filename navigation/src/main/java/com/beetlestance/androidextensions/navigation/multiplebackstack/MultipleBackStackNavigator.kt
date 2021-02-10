@@ -1,22 +1,18 @@
 package com.beetlestance.androidextensions.navigation.multiplebackstack
 
 import android.net.Uri
-import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.util.SparseArray
-import android.view.View
-import androidx.activity.addCallback
 import androidx.annotation.IdRes
-import androidx.annotation.IntRange
-import androidx.core.util.forEach
 import androidx.core.util.set
-import androidx.fragment.app.*
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.commitNow
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import com.beetlestance.androidextensions.navigation.R
-import com.beetlestance.androidextensions.navigation.deprecated.extensions.mNavGraphIds
 import java.util.*
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * @param fragmentManager to be used to attach all NavHostFragments that are created by this class
@@ -33,25 +29,25 @@ import java.util.concurrent.atomic.AtomicBoolean
  * 1. Navigation can be based on index, as it will be easy to manage, but it breaks the default
  * Navigation pattern. Graph ids are provided which will also be attached to any components
  */
-class MultipleBackStackNavigator(
+class MultipleBackStackManager(
     private val navGraphIds: List<Int>,
     private val fragmentManager: FragmentManager,
     @IdRes private val containerId: Int,
     private val primarySelectedIndex: Int,
-    @IntRange(from = 1, to = Long.MAX_VALUE) private val backstackHistoryCount: Int = 1
+    private val backstackHistoryCount: Int = navGraphIds.size
 ) {
     // Map of graphId to Tags
     // Stores NavHostFragment tag with graphIds
     private val graphIdToTagMap = SparseArray<String>()
 
-    // Primary fragment graphId
-    private var primaryNavHostTag: String = ""
+    // Primary fragment NavHost tag
+    private var primaryGraphId: Int = 0
 
-    // Currently selected NavHostIndex
-    private var selectedNavHostTag: String = ""
+    // Currently selected NavHost tag
+    private var selectedGraphId: Int = 0
 
-    private val canModifyHistory: AtomicBoolean = AtomicBoolean(true)
-    private val backStackHistory: MutableList<String> = mutableListOf()
+    private val multipleBackStackHistory: MultipleBackStackHistory =
+        MultipleBackStackHistory(historyCount = backstackHistoryCount)
 
     private var stackListener: StackListener? = null
 
@@ -63,72 +59,25 @@ class MultipleBackStackNavigator(
         }
 
 
+    fun setFragmentStackListener(stackListener: StackListener) {
+        this.stackListener = stackListener
+    }
+
     init {
+        createNavHostFragments()
+
         // this calls means nothing, as there is no backstack being created
         fragmentManager.addOnBackStackChangedListener {
             Log.w("BackStackChangeListener", "BackStack is managed by MultipleBackStackNavigator")
         }
     }
 
-    private fun removeBackstack(): Boolean {
-        // remove last history
-        return if (backStackHistory.isNotEmpty()) {
-            val removedHistory = backStackHistory.removeLast()
-
-            // return false if backstack does not have any history
-            if (backStackHistory.isEmpty()) {
-                return false
-            }
-
-            // if the removed history and next history is same remove again
-            // this can happen when backstack history count is reached and we remove old history
-            if (removedHistory == backStackHistory.lastOrNull()) {
-                removeBackstack()
-            } else {
-                return true
-            }
-        } else {
-            return false
-        }
-    }
-
-    private fun addBackstack(name: String) {
-        if (backStackHistory.size > backstackHistoryCount) {
-            backStackHistory.removeAt(1)
-        }
-        // should not add same history twice in a row
-        if (backStackHistory.lastOrNull() != name) backStackHistory.add(name)
-    }
-
-    @Synchronized
-    fun popBackstack(): Boolean {
-        val backStackChanged = removeBackstack()
-        return if (backStackChanged) {
-            val newHost =
-                fragmentManager.findFragmentByTag(backStackHistory.last()) as NavHostFragment
-            stackListener?.onStackChange(newHost.navController.graph.id)
-            true
-        } else {
-            false
-        }
-    }
-
-    @Synchronized
-    fun pushToBackstack(name: String) {
-        addBackstack(name)
-    }
-
-    fun setFragmentStackListener(stackListener: StackListener) {
-        this.stackListener = stackListener
-    }
-
-
     /**
-     * Responsibility::
+     * Responsibility:
      * To setUp fragmentManager with multiple [NavHostFragment], one for each graph
      * Attaches the required NavHostFragment to container
      */
-    fun setUpNavHostFragments() {
+    private fun createNavHostFragments() {
         navGraphIds.forEachIndexed { index, navGraphId ->
             // get unique fragment tag for each NavHostFragment
             val fragmentTag = getFragmentTag(index)
@@ -157,10 +106,10 @@ class MultipleBackStackNavigator(
             // When app starts selected history and primaryId is same
             // this should be done with primaryIndex
             if (index == primarySelectedIndex) {
-                primaryNavHostTag = fragmentTag
+                primaryGraphId = graphId
                 // push primary fragment to backstack
-                pushToBackstack(fragmentTag)
-                selectedNavHostTag = fragmentTag
+                pushToBackstack(graphId)
+                selectedGraphId = graphId
                 selectedNavController = navHostFragment.navController
 
                 // attach the primary fragment to container
@@ -176,24 +125,34 @@ class MultipleBackStackNavigator(
     }
 
     fun selectNavHostFragment(selectedId: Int): Boolean {
+        return selectNavHostFragment(selectedId, true)
+    }
+
+    /**
+     * Responsibility:
+     * To select the particular [NavHostFragment] base on graph id
+     */
+    fun selectNavHostFragment(selectedId: Int, addToBackStack: Boolean): Boolean {
         // Don't do anything if the state is state has already been saved.
         if (fragmentManager.isStateSaved) return false
 
         // Find the tag for selected graphs NavHost
         val navHostFragmentTag = graphIdToTagMap[selectedId]
 
+        // currently selected NavHostTag
+        val selectedNavHostTag = graphIdToTagMap[selectedGraphId]
+
         // Find the fragment associated with the tag
         val fragment = fragmentManager.findFragmentByTag(navHostFragmentTag) as NavHostFragment
 
-        if (selectedNavHostTag == navHostFragmentTag) return true
+        // if selected and incoming fragment is same do not do anything
+        if (selectedGraphId == selectedId) return true
 
         // pop backstack if any
-        fragmentManager.popBackStack(
-            primaryNavHostTag,
-            FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
-
-        pushToBackstack(navHostFragmentTag)
+//        fragmentManager.popBackStack(
+//            primaryNavHostTag,
+//            FragmentManager.POP_BACK_STACK_INCLUSIVE
+//        )
 
         fragmentManager.commitNow {
             setCustomAnimations(
@@ -203,24 +162,31 @@ class MultipleBackStackNavigator(
                 R.anim.nav_default_pop_exit_anim
             )
 
-            // detach previous fragment first
+            // detach previous fragment
             detach(fragmentManager.findFragmentByTag(selectedNavHostTag)!!)
 
             // reattaches the fragment which was detached
             attach(fragment)
+
+            // create this fragment as primary fragment
             setPrimaryNavigationFragment(fragment)
 
             // this allows this transaction to be written in any order and apply optimizations later
             setReorderingAllowed(true)
         }
 
+        // add this fragment to backstack
+        if (addToBackStack) pushToBackstack(selectedId)
+
         val fragmentNavController = fragment.navController
         selectedNavController = fragmentNavController
-        selectedNavHostTag = navHostFragmentTag
+        selectedGraphId = selectedId
         // if all the stack is popped
         if (fragmentNavController.currentDestination == null) {
             fragmentNavController.navigate(selectedId)
         }
+
+        stackListener?.onStackChange(selectedId)
         return true
     }
 
@@ -228,7 +194,7 @@ class MultipleBackStackNavigator(
      * Navigate to the deeplink provided
      * Triggers the stack change: to be used by components to select correct items
      */
-    fun navigateToDeeplink(deeplink: Uri) {
+    fun navigateToDeeplink(deeplink: Uri, navOptions: NavOptions) {
         navGraphIds.forEachIndexed { index, navGraphId ->
             val fragmentTag = getFragmentTag(index)
 
@@ -245,12 +211,30 @@ class MultipleBackStackNavigator(
 
             if (canHandleDeeplink) {
                 stackListener?.onStackChange(navHostFragment.navController.graph.id)
-                navHostFragment.navController.navigate(deeplink)
+                navHostFragment.navController.navigate(deeplink, navOptions)
             }
         }
     }
 
-    fun currentController(): NavController? = selectedNavController
+    @Synchronized
+    fun popBackstack(): Boolean {
+        val backStackChanged = multipleBackStackHistory.pop()
+        // select the correct history
+        if (backStackChanged) {
+            selectNavHostFragment(multipleBackStackHistory.current(), false)
+        }
+        return backStackChanged
+    }
+
+    @Synchronized
+    fun pushToBackstack(entry: Int) {
+        multipleBackStackHistory.push(entry)
+    }
+
+    // clears all the history
+    fun clearBackstackHistory() {
+        multipleBackStackHistory.clear()
+    }
 
     /**
      * Resets navHost to start destination of the graph
@@ -343,3 +327,60 @@ class MultipleBackStackNavigator(
     }
 }
 
+
+/*
+* class to maintain backstack history
+* primary history must always be in backstack
+*/
+data class MultipleBackStackHistory(
+    private val backStackHistory: ArrayList<Int> = arrayListOf(),
+    private val historyCount: Int = 0
+) {
+
+    val size: Int get() = backStackHistory.size
+
+    val isEmpty: Boolean get() = backStackHistory.isEmpty()
+
+    // do not allow history count if not enabled
+    // remove duplicate then add history
+    // remove oldest history in case stack size is full
+    fun push(entry: Int) {
+        // do not push to history
+        if (historyCount <= 0) return
+
+        backStackHistory.run {
+            // this prevents primary fragment to be removed from history
+            val indexIfExists = indexOf(entry)
+            if (indexIfExists > 0) {
+                remove(entry)
+            }
+            add(entry)
+        }
+    }
+
+    fun pop(): Boolean {
+        // if only primary fragment is there, nothing to pop
+        if (size <= 1) return false
+
+        // remove last history
+        val removedHistory = backStackHistory.removeLast()
+
+        // check if duplicate is present
+        val isDuplicateEntryFound = removedHistory == backStackHistory.lastOrNull()
+
+        // if duplicate entry is there pop() history again
+        return if (isDuplicateEntryFound) pop() else true
+    }
+
+    fun pop(exit: Int): Boolean {
+        return backStackHistory.remove(exit)
+    }
+
+    // provides current backstack history always
+    fun current(): Int = backStackHistory.last()
+
+    // always keep primary history in backstack
+    fun clear() {
+        backStackHistory.clear()
+    }
+}

@@ -9,11 +9,10 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.beetlestance.androidextensions.navigation.deprecated.data.NavigateOnceDeeplinkRequest
-import com.beetlestance.androidextensions.navigation.deprecated.extensions.navigateOnce
-import com.beetlestance.androidextensions.navigation.deprecated.extensions.setupMultipleBackStackBottomNavigation
-import com.beetlestance.androidextensions.navigation.multiplebackstack.MultipleBackStackNavigator
+import com.beetlestance.androidextensions.navigation.multiplebackstack.MultipleBackStackManager
 import com.beetlestance.androidextensions.navigation.multiplebackstack.setUpWithMultipleBackStack
 import com.beetlestance.androidextensions.sample.R
 import com.beetlestance.androidextensions.sample.databinding.FragmentDashboardBinding
@@ -28,7 +27,7 @@ class DashboardFragment : Fragment() {
 
     private var binding: FragmentDashboardBinding? = null
     private var currentNavController: NavController? = null
-    private var multipleBackStackNavigator: MultipleBackStackNavigator? = null
+    private var multipleBackStackNavigator: MultipleBackStackManager? = null
 
     private fun requireBinding(): FragmentDashboardBinding = requireNotNull(binding)
 
@@ -46,24 +45,27 @@ class DashboardFragment : Fragment() {
             setupBottomNavigationBar()
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            if (multipleBackStackNavigator?.popBackstack() != true) {
-                if (findNavController().popBackStack().not()) {
-                    requireActivity().finish()
-                }
-            }
-        }
-
         requireBinding().dashboardFragmentToolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.dashboard_notification -> {
+                    val options = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
                     multipleBackStackNavigator?.navigateToDeeplink(
-                        FEED_DEEPLINK.format("yay").toUri()
+                        FEED_DEEPLINK.format("yay").toUri(), options
                     )
                     //findNavController().navigateOnce(viewModel.navigateToNotificationFragment())
                     true
                 }
                 else -> false
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if (multipleBackStackNavigator?.popBackstack() != true) {
+                if (findNavController().popBackStack().not()) {
+                    requireActivity().finish()
+                }
             }
         }
     }
@@ -85,7 +87,6 @@ class DashboardFragment : Fragment() {
                 navGraphIds = NAV_GRAPH_IDS,
                 fragmentManager = childFragmentManager,
                 primaryIndex = 0,
-                backstackHistoryCount = 4,
                 containerId = requireBinding().navHostFragmentDashboard.id,
                 onControllerChange = ::onControllerChange
             )
