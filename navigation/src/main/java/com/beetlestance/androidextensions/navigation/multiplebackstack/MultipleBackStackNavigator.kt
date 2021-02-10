@@ -34,7 +34,7 @@ class MultipleBackStackManager(
     private val fragmentManager: FragmentManager,
     @IdRes private val containerId: Int,
     private val primarySelectedIndex: Int,
-    private val backstackHistoryCount: Int = navGraphIds.size
+    private val historyEnabled: Boolean = true
 ) {
     // Map of graphId to Tags
     // Stores NavHostFragment tag with graphIds
@@ -46,8 +46,7 @@ class MultipleBackStackManager(
     // Currently selected NavHost tag
     private var selectedGraphId: Int = 0
 
-    private val multipleBackStackHistory: MultipleBackStackHistory =
-        MultipleBackStackHistory(historyCount = backstackHistoryCount)
+    private val multipleBackStackHistory: MultipleBackStackHistory = MultipleBackStackHistory()
 
     private var stackListener: StackListener? = null
 
@@ -228,6 +227,8 @@ class MultipleBackStackManager(
 
     @Synchronized
     fun pushToBackstack(entry: Int) {
+        // do not push history if not enabled
+        if (historyEnabled.not()) return
         multipleBackStackHistory.push(entry)
     }
 
@@ -333,8 +334,7 @@ class MultipleBackStackManager(
 * primary history must always be in backstack
 */
 data class MultipleBackStackHistory(
-    private val backStackHistory: ArrayList<Int> = arrayListOf(),
-    private val historyCount: Int = 0
+    private val backStackHistory: ArrayList<Int> = arrayListOf()
 ) {
 
     val size: Int get() = backStackHistory.size
@@ -345,9 +345,6 @@ data class MultipleBackStackHistory(
     // remove duplicate then add history
     // remove oldest history in case stack size is full
     fun push(entry: Int) {
-        // do not push to history
-        if (historyCount <= 0) return
-
         backStackHistory.run {
             // this prevents primary fragment to be removed from history
             val indexIfExists = indexOf(entry)

@@ -10,7 +10,7 @@ fun BottomNavigationView.setUpWithMultipleBackStack(
     fragmentManager: FragmentManager,
     containerId: Int,
     primaryIndex: Int = 0,
-    backstackHistoryCount: Int = navGraphIds.size,
+    historyEnabled: Boolean = false,
     onControllerChange: (NavController?) -> Unit = {}
 ): MultipleBackStackManager {
     val multipleBackStackNavigator = MultipleBackStackManager(
@@ -18,7 +18,7 @@ fun BottomNavigationView.setUpWithMultipleBackStack(
         fragmentManager = fragmentManager,
         containerId = containerId,
         primarySelectedIndex = primaryIndex,
-        backstackHistoryCount = backstackHistoryCount
+        historyEnabled = historyEnabled
     )
 
     multipleBackStackNavigator.setFragmentStackListener(stackListener = object :
