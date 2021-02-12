@@ -1,7 +1,6 @@
 package com.beetlestance.androidextensions.navigation.experimental
 
 import android.util.SparseArray
-import androidx.core.util.forEach
 import androidx.core.util.set
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
@@ -13,7 +12,7 @@ class MultiNavHost(
     private val containerId: Int,
     private val primaryFragmentIndex: Int,
     private val fragmentManager: FragmentManager,
-    private val isSingleTopReplacement: Boolean = false
+    private val isSingleTopReplacement: Boolean = true
 ) {
     // Map of tags
     private val graphIdToTagMap: SparseArray<String> = SparseArray<String>()
@@ -46,80 +45,33 @@ class MultiNavHost(
             // Save to the map
             graphIdToTagMap[graphId] = fragmentTag
 
-            // Attach or detach nav host fragment depending on whether it's the selected item.
             if (selectedNavGraphId == graphId) {
-                navController = navHostFragment.navController
-                attachNavHostFragment(
-                    fragmentManager = fragmentManager,
-                    navHostFragment = navHostFragment,
-                    isPrimaryNavFragment = isOnPrimaryFragment()
-                )
-            } else {
-                detachNavHostFragment(
-                    fragmentManager = fragmentManager,
+                swapBackStackEntry(
+                    containerId = containerId,
+                    fragmentTag = fragmentTag,
                     navHostFragment = navHostFragment
                 )
+                navController = navHostFragment.navController
             }
 
         }
     }
 
     fun selectSiblings(navGraphId: Int): Boolean {
-        // Now connect selecting an item with swapping Fragments
-        val selectedItemTag = selectedFragmentTag()
-        val firstFragmentTag = graphIdToTagMap[primaryFragmentId]
         // Don't do anything if the state is state has already been saved.
         return if (fragmentManager.isStateSaved) {
             false
         } else {
             val newlySelectedItemTag = graphIdToTagMap[navGraphId]
-            if (selectedItemTag != newlySelectedItemTag) {
-                // Pop everything above the first fragment (the "fixed start destination")
-                fragmentManager.popBackStack(
-                    firstFragmentTag,
-                    FragmentManager.POP_BACK_STACK_INCLUSIVE
-                )
 
-                val selectedFragment = fragmentManager.findFragmentByTag(newlySelectedItemTag)
-                        as NavHostFragment
+            val selectedFragment = fragmentManager.findFragmentByTag(newlySelectedItemTag)
+                    as NavHostFragment
 
-                // Exclude the first fragment tag because it's always in the back stack.
-                if (firstFragmentTag != newlySelectedItemTag) {
-                    // Commit a transaction that cleans the back stack and adds the first fragment
-                    // to it, creating the fixed started destination.
-                    fragmentManager.beginTransaction()
-                        .setCustomAnimations(
-                            mNavAnimations.enterAnimation,
-                            mNavAnimations.exitAnimation,
-                            mNavAnimations.popEnterAnimation,
-                            mNavAnimations.popExitAnimation
-                        )
-                        .attach(selectedFragment)
-                        .setPrimaryNavigationFragment(selectedFragment)
-                        .apply {
-                            // Detach all other Fragments
-                            graphIdToTagMap.forEach { _, fragmentTagIter ->
-                                if (fragmentTagIter != newlySelectedItemTag) {
-                                    detach(
-                                        requireNotNull(
-                                            fragmentManager.findFragmentByTag(
-                                                firstFragmentTag
-                                            )
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                        .addToBackStack(firstFragmentTag)
-                        .setReorderingAllowed(true)
-                        .commit()
-                }
-                selectedNavGraphId = navGraphId
-                navController = selectedFragment.navController
-                true
-            } else {
-                false
-            }
+            swapBackStackEntry(containerId, newlySelectedItemTag, selectedFragment)
+
+            selectedNavGraphId = navGraphId
+            navController = selectedFragment.navController
+            true
         }
     }
 
@@ -129,9 +81,7 @@ class MultiNavHost(
                 as NavHostFragment
         val navController = selectedFragment.navController
         // Pop the back stack to the start destination of the current navController graph
-        navController.popBackStack(
-            navController.graph.startDestination, false
-        )
+        navController.popBackStack(navController.graph.startDestination, false)
     }
 
     private fun isPrimaryFragmentInBackStack(): Boolean =
@@ -140,6 +90,8 @@ class MultiNavHost(
     private fun isOnPrimaryFragment(): Boolean = selectedNavGraphId == primaryFragmentId
 
     private fun selectedFragmentTag(): String = graphIdToTagMap[selectedNavGraphId]
+
+    private fun primaryFragmentTag(): String = graphIdToTagMap[selectedNavGraphId]
 
     fun observeBackStack(onStackChange: (Int) -> Unit) {
         fragmentManager.addOnBackStackChangedListener {
@@ -157,28 +109,6 @@ class MultiNavHost(
         }
     }
 
-    private fun detachNavHostFragment(
-        fragmentManager: FragmentManager,
-        navHostFragment: NavHostFragment
-    ) {
-        fragmentManager.beginTransaction()
-            .detach(navHostFragment)
-            .commitNow()
-    }
-
-    private fun attachNavHostFragment(
-        fragmentManager: FragmentManager,
-        navHostFragment: NavHostFragment,
-        isPrimaryNavFragment: Boolean
-    ) {
-        fragmentManager.beginTransaction()
-            .attach(navHostFragment)
-            .apply {
-                if (isPrimaryNavFragment) setPrimaryNavigationFragment(navHostFragment)
-            }
-            .commitNow()
-    }
-
     private fun obtainNavHostFragment(
         fragmentManager: FragmentManager,
         fragmentTag: String,
@@ -193,8 +123,35 @@ class MultiNavHost(
         val navHostFragment = NavHostFragment.create(navGraphId)
         fragmentManager.beginTransaction()
             .add(containerId, navHostFragment, fragmentTag)
-            .commitNow()
+            .commitNowAllowingStateLoss()
         return navHostFragment
+    }
+
+    private fun swapBackStackEntry(
+        containerId: Int,
+        fragmentTag: String,
+        navHostFragment: NavHostFragment
+    ) {
+        fragmentManager.beginTransaction()
+            .setCustomAnimations(
+                mNavAnimations.enterAnimation,
+                mNavAnimations.exitAnimation,
+                mNavAnimations.popEnterAnimation,
+                mNavAnimations.popExitAnimation
+            )
+            .setReorderingAllowed(true)
+            .setPrimaryNavigationFragment(navHostFragment)
+            .replace(containerId, navHostFragment, fragmentTag)
+            .apply {
+                if (isSingleTopReplacement) {
+                    if (fragmentManager.isOnBackStack(fragmentTag).not()) {
+                        addToBackStack(fragmentTag)
+                    }
+                } else {
+                    addToBackStack(fragmentTag)
+                }
+            }
+            .commitAllowingStateLoss()
     }
 
     private fun FragmentManager.isOnBackStack(backStackName: String): Boolean {
