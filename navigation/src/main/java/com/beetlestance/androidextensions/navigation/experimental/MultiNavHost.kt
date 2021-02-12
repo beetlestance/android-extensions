@@ -1,13 +1,13 @@
 package com.beetlestance.androidextensions.navigation.experimental
 
 import android.util.SparseArray
+import androidx.core.util.forEach
 import androidx.core.util.set
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
-import com.beetlestance.androidextensions.navigation.extensions.mContainerId
 import com.beetlestance.androidextensions.navigation.extensions.mNavAnimations
 import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
 
@@ -35,10 +35,8 @@ class MultiNavHost(
 
             // Find or create the Navigation host fragment
             val navHostFragment = obtainNavHostFragment(
-                fragmentManager = fragmentManager,
                 fragmentTag = fragmentTag,
-                navGraphId = navGraphId,
-                containerId = containerId
+                navGraphId = navGraphId
             )
 
             // Obtain its id
@@ -49,15 +47,13 @@ class MultiNavHost(
             // Save to the map
             graphIdToTagMap[graphId] = fragmentTag
 
-            if (selectedNavGraphId == graphId) {
+            if (primaryFragmentId == graphId) {
                 swapBackStackEntry(
-                    containerId = containerId,
-                    fragmentTag = fragmentTag,
+                    fragmentTag = graphIdToTagMap[selectedNavGraphId],
                     navHostFragment = navHostFragment
                 )
                 navController = navHostFragment.navController
             }
-
         }
     }
 
@@ -71,8 +67,12 @@ class MultiNavHost(
             val selectedFragment = fragmentManager.findFragmentByTag(newlySelectedItemTag)
                     as NavHostFragment
 
-            swapBackStackEntry(containerId, newlySelectedItemTag, selectedFragment)
-
+            if (!selectedFragment.isAdded) {
+                swapBackStackEntry(
+                    fragmentTag = newlySelectedItemTag,
+                    navHostFragment = selectedFragment
+                )
+            }
             selectedNavGraphId = navGraphId
             navController = selectedFragment.navController
             true
@@ -99,25 +99,22 @@ class MultiNavHost(
 
     fun observeBackStack(onStackChange: (Int) -> Unit) {
         fragmentManager.addOnBackStackChangedListener {
-            if (!isOnPrimaryFragment() && !isPrimaryFragmentInBackStack()) {
-                onStackChange(primaryFragmentId)
-            }
-
-            // Reset the graph if the currentDestination is not valid (happens when the back
-            // stack is popped after using the back button).
             navController?.let { navController ->
+                // Reset the graph if the currentDestination is not valid (happens when the back
+                // stack is popped after using the back button).
                 if (navController.currentDestination == null) {
                     navController.navigate(navController.graph.id)
+                } else {
+                    val newBackStackId = fragmentManager.currentBackStackId()
+                    if (newBackStackId != null) onStackChange(newBackStackId)
                 }
             }
         }
     }
 
     private fun obtainNavHostFragment(
-        fragmentManager: FragmentManager,
         fragmentTag: String,
-        navGraphId: Int,
-        containerId: Int
+        navGraphId: Int
     ): NavHostFragment {
         // If the Nav Host fragment exists, return it
         val existingFragment = fragmentManager.findFragmentByTag(fragmentTag) as NavHostFragment?
@@ -127,12 +124,12 @@ class MultiNavHost(
         val navHostFragment = NavHostFragment.create(navGraphId)
         fragmentManager.beginTransaction()
             .add(containerId, navHostFragment, fragmentTag)
-            .commitNowAllowingStateLoss()
+            .commitNow()
+
         return navHostFragment
     }
 
     private fun swapBackStackEntry(
-        containerId: Int,
         fragmentTag: String,
         navHostFragment: NavHostFragment
     ) {
@@ -148,9 +145,7 @@ class MultiNavHost(
             .replace(containerId, navHostFragment, fragmentTag)
             .apply {
                 if (isSingleTopReplacement) {
-                    if (fragmentManager.isOnBackStack(fragmentTag).not()) {
-                        addToBackStack(fragmentTag)
-                    }
+                    addToBackStack(fragmentTag)
                 } else {
                     addToBackStack(fragmentTag)
                 }
@@ -167,10 +162,8 @@ class MultiNavHost(
 
             // Find or create the Navigation host fragment
             val navHostFragment = obtainNavHostFragment(
-                fragmentManager = fragmentManager,
                 fragmentTag = fragmentTag,
-                navGraphId = navGraphId,
-                containerId = mContainerId
+                navGraphId = navGraphId
             )
 
             // Handle deeplink
@@ -197,6 +190,18 @@ class MultiNavHost(
             if (getBackStackEntryAt(index).name == backStackName) return true
         }
         return false
+    }
+
+    private fun FragmentManager.currentBackStackId(): Int? {
+        return if (backStackEntryCount > 0) {
+            val backStackName = getBackStackEntryAt(backStackEntryCount - 1).name
+            graphIdToTagMap.getKeyAt(backStackName ?: return null)
+        } else null
+    }
+
+    private fun <T> SparseArray<T>.getKeyAt(value: T): Int? {
+        forEach { key, v -> if (v == value) return key }
+        return null
     }
 
     @Suppress("HardCodedStringLiteral")

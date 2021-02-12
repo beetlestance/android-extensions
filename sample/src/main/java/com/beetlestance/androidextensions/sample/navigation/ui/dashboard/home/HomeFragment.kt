@@ -13,6 +13,7 @@ import com.beetlestance.androidextensions.navigation.DeeplinkNavigator
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
 import com.beetlestance.androidextensions.sample.databinding.FragmentHomeBinding
 import com.beetlestance.androidextensions.sample.navigation.constants.FEED_DEEPLINK
+import com.beetlestance.androidextensions.sample.navigation.constants.HOME_SEARCH_DEEPLINK
 import com.beetlestance.androidextensions.sample.navigation.constants.NOTIFICATION_DEEPLINK
 import com.beetlestance.androidextensions.sample.navigation.constants.SEARCH_DEEPLINK
 import dagger.hilt.android.AndroidEntryPoint
@@ -92,7 +93,7 @@ class HomeFragment : Fragment() {
 
             deeplinkNavigator.navigate(
                 NavigateOnceDeeplinkRequest(
-                    deeplink = SEARCH_DEEPLINK.format(input).toUri(),
+                    deeplink = HOME_SEARCH_DEEPLINK.format(input).toUri(),
                     updateArguments = shouldUpdateArguments,
                     allowMultipleInstance = multipleInstancesAllowed
                 )
