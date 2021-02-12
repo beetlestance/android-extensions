@@ -1,11 +1,9 @@
 package com.beetlestance.androidextensions.navigation.extensions
 
-import android.util.SparseArray
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -126,8 +124,8 @@ private fun BottomNavigationView.setupMultipleBackStack(
     setOnNavigationItemReselectedListener { item -> multiNavHost.reselectSiblings(item.itemId) }
 
     handleDeeplink(
+        multiNavHost = multiNavHost,
         lifecycleOwner = lifecycleOwner,
-        fragmentManager = fragmentManager,
         activityNavController = activityNavController,
         request = validatedRequest
     )
@@ -150,85 +148,21 @@ private fun BottomNavigationView.setupMultipleBackStack(
  */
 
 private fun BottomNavigationView.handleDeeplink(
+    multiNavHost: MultiNavHost,
     lifecycleOwner: LifecycleOwner,
-    fragmentManager: FragmentManager,
     activityNavController: NavController?,
-    request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this }
+    request: NavigateOnceDeeplinkRequest.() -> NavigateOnceDeeplinkRequest = { this },
 ) {
     val navigator = Navigator.getInstance()
     navigator.navigateRequest.observe(owner = lifecycleOwner) {
         navigator.handleDeeplink(
             navController = activityNavController,
-            bottomNavigationView = this,
-            fragmentManager = fragmentManager,
-            request = it.request()
+            multiNavHost = multiNavHost,
+            request = it.request(),
+            onMatchFound = { itemId ->
+                selectedItemId = itemId
+            }
         )
-    }
-}
-
-private fun obtainNavHostFragment(
-    fragmentManager: FragmentManager,
-    fragmentTag: String,
-    navGraphId: Int,
-    containerId: Int
-): NavHostFragment {
-    // If the Nav Host fragment exists, return it
-    val existingFragment = fragmentManager.findFragmentByTag(fragmentTag) as NavHostFragment?
-    existingFragment?.let { return it }
-
-    // Otherwise, create it and return it.
-    val navHostFragment = NavHostFragment.create(navGraphId)
-    fragmentManager.beginTransaction()
-        .add(containerId, navHostFragment, fragmentTag)
-        .commitNow()
-    return navHostFragment
-}
-
-private fun FragmentManager.isOnBackStack(backStackName: String): Boolean {
-    val backStackCount = backStackEntryCount
-    for (index in 0 until backStackCount) {
-        if (getBackStackEntryAt(index).name == backStackName) {
-            return true
-        }
-    }
-    return false
-}
-
-@Suppress("HardCodedStringLiteral")
-private fun getFragmentTag(index: Int) = "bottomNavigation#$index"
-
-// Handle deeplink
-internal fun BottomNavigationView.navigateDeeplink(
-    fragmentManager: FragmentManager,
-    request: NavigateOnceDeeplinkRequest
-) {
-
-    mNavGraphIds.forEachIndexed { index, navGraphId ->
-        val fragmentTag = getFragmentTag(index)
-
-        // Find or create the Navigation host fragment
-        val navHostFragment =
-            obtainNavHostFragment(
-                fragmentManager,
-                fragmentTag,
-                navGraphId,
-                mContainerId
-            )
-
-        // Handle deeplink
-        val canHandleDeeplink = navHostFragment.navController.graph.hasDeepLink(request.deeplink)
-
-        if (canHandleDeeplink) {
-            if (selectedItemId != navHostFragment.navController.graph.id) {
-                selectedItemId = navHostFragment.navController.graph.id
-            }
-            navHostFragment.lifecycleScope.launchWhenResumed {
-                // Wait for fragment to restore state from backStack
-                // otherwise navigate will be ignored
-                // Ignoring navigate() call: FragmentManager has already saved its state
-                navHostFragment.navController.navigateOnce(request)
-            }
-        }
     }
 }
 

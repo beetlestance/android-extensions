@@ -3,9 +3,13 @@ package com.beetlestance.androidextensions.navigation.experimental
 import android.util.SparseArray
 import androidx.core.util.set
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
+import com.beetlestance.androidextensions.navigation.extensions.mContainerId
 import com.beetlestance.androidextensions.navigation.extensions.mNavAnimations
+import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
 
 class MultiNavHost(
     private val navGraphIds: List<Int>,
@@ -152,6 +156,39 @@ class MultiNavHost(
                 }
             }
             .commitAllowingStateLoss()
+    }
+
+    fun navigate(
+        request: NavigateOnceDeeplinkRequest,
+        onMatchFound: (Int) -> Unit
+    ) {
+        navGraphIds.forEachIndexed { index, navGraphId ->
+            val fragmentTag = getFragmentTag(index)
+
+            // Find or create the Navigation host fragment
+            val navHostFragment = obtainNavHostFragment(
+                fragmentManager = fragmentManager,
+                fragmentTag = fragmentTag,
+                navGraphId = navGraphId,
+                containerId = mContainerId
+            )
+
+            // Handle deeplink
+            val canHandleDeeplink =
+                navHostFragment.navController.graph.hasDeepLink(request.deeplink)
+
+            if (canHandleDeeplink) {
+                if (selectedNavGraphId != navHostFragment.navController.graph.id) {
+                    onMatchFound(navHostFragment.navController.graph.id)
+                }
+                navHostFragment.lifecycleScope.launchWhenResumed {
+                    // Wait for fragment to restore state from backStack
+                    // otherwise navigate will be ignored
+                    // Ignoring navigate() call: FragmentManager has already saved its state
+                    navHostFragment.navController.navigateOnce(request)
+                }
+            }
+        }
     }
 
     private fun FragmentManager.isOnBackStack(backStackName: String): Boolean {

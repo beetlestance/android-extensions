@@ -3,15 +3,13 @@ package com.beetlestance.androidextensions.navigation
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import com.beetlestance.androidextensions.navigation.DeeplinkNavigationPolicy.RETAIN_AND_DISCARD
 import com.beetlestance.androidextensions.navigation.data.NavigateOnceDeeplinkRequest
-import com.beetlestance.androidextensions.navigation.extensions.navigateDeeplink
+import com.beetlestance.androidextensions.navigation.experimental.MultiNavHost
 import com.beetlestance.androidextensions.navigation.extensions.navigateOnce
 import com.beetlestance.androidextensions.navigation.util.toSingleEvent
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
  * This object contains all the exposed methods from Navigator class
@@ -77,24 +75,17 @@ internal class Navigator private constructor() {
      * This will be called everytime a deeplink navigation happens
      */
     internal fun handleDeeplink(
+        multiNavHost: MultiNavHost,
         navController: NavController?,
-        bottomNavigationView: BottomNavigationView,
-        fragmentManager: FragmentManager,
-        request: NavigateOnceDeeplinkRequest
+        request: NavigateOnceDeeplinkRequest,
+        onMatchFound: (Int) -> Unit
     ) {
         // If the BottomNavigationView is attached to activity, all the deeplinks will
         // be handled by BottomNavigationView itself
         //  checks if parent can navigate to the destination
         when (canNavControllerHandleDeeplink(navController, request)) {
-            true -> {
-                navController?.navigateOnce(request)
-            }
-            else -> {
-                bottomNavigationView.navigateDeeplink(
-                    request = request,
-                    fragmentManager = fragmentManager
-                )
-            }
+            true -> navController?.navigateOnce(request)
+            else -> multiNavHost.navigate(request, onMatchFound)
         }
     }
 
