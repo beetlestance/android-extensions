@@ -98,17 +98,21 @@ class MultiNavHost(
                 if (navController.currentDestination == null) {
                     navController.navigate(navController.graph.id)
                 } else {
-                    val newBackStackId = fragmentManager.currentBackStackId()
-
                     when (multiNavHostBackStackPolicy) {
                         MultiNavHostBackStackPolicy.NO_BACK_STACK -> Unit
                         MultiNavHostBackStackPolicy.PRIMARY_BACK_STACK -> {
+                            val newBackStackId = fragmentManager.currentBackStackId()
                             if (newBackStackId == null) onStackChange(primaryFragmentId)
                         }
                         MultiNavHostBackStackPolicy.MULTIPLE_BACK_STACK -> {
-                            validateStackAndReset()
-                            if (newBackStackId != null) onStackChange(newBackStackId)
-                            else onStackChange(primaryFragmentId)
+                            val isStackReset = validateStackAndReset()
+                            if (isStackReset) {
+                                onStackChange(primaryFragmentId)
+                            } else {
+                                val newBackStackId = fragmentManager.currentBackStackId()
+                                if (newBackStackId != null) onStackChange(newBackStackId)
+                            }
+
                         }
                     }
                 }
@@ -219,14 +223,14 @@ class MultiNavHost(
             MultiNavHostBackStackPolicy.MULTIPLE_BACK_STACK -> {
                 val backStackCount = fragmentManager.backStackEntryCount
                 if (backStackCount > multipleBackStackCount) {
-                    val lastRetainedBackStackCount = backStackCount + 1 - multipleBackStackCount
+                    val lastRetainedBackStackCount = backStackCount - multipleBackStackCount
                     lastRetainedBackStackEntry = generateBackStackName(
                         backStackIndex = lastRetainedBackStackCount,
                         fragmentTag = fragmentTag
                     )
                 }
                 generateBackStackName(
-                    backStackIndex = backStackCount + 1,
+                    backStackIndex = backStackCount,
                     fragmentTag = fragmentTag
                 )
             }
@@ -253,14 +257,15 @@ class MultiNavHost(
         } else null
     }
 
-    private fun validateStackAndReset() {
-        val currentBackStackEntry = fragmentManager.currentBackStackEntry()?.name ?: return
-        if (isLastRetainedBackEntry(currentBackStackEntry)) {
+    private fun validateStackAndReset(): Boolean {
+        val currentBackStackEntry = fragmentManager.currentBackStackEntry()?.name ?: return false
+        return if (isLastRetainedBackEntry(currentBackStackEntry)) {
             fragmentManager.popBackStack(
-                graphIdToTagMap[primaryFragmentId],
+                fragmentManager.getBackStackEntryAt(0).name,
                 FragmentManager.POP_BACK_STACK_INCLUSIVE
             )
-        }
+            true
+        } else false
     }
 
     private fun FragmentManager.BackStackEntry?.toFragmentTag(): String? {
