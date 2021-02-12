@@ -112,7 +112,7 @@ private fun BottomNavigationView.setupMultipleBackStack(
         containerId = mContainerId,
         primaryFragmentIndex = 0,
         fragmentManager = fragmentManager,
-        isSingleTopReplacement = true
+        multiNavHostBackStackPolicy = MultiNavHost.MultiNavHostBackStackPolicy.PRIMARY_BACK_STACK
     )
 
     multiNavHost.create(selectedItemId)

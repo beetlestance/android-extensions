@@ -16,16 +16,19 @@ class MultiNavHost(
     private val containerId: Int,
     private val primaryFragmentIndex: Int,
     private val fragmentManager: FragmentManager,
-    private val isSingleTopReplacement: Boolean = true
+    private val multiNavHostBackStackPolicy: MultiNavHostBackStackPolicy,
+    private val multipleBackStackCount: Int = navGraphIds.size
 ) {
     // Map of tags
     private val graphIdToTagMap: SparseArray<String> = SparseArray<String>()
 
+    private var primaryFragmentId: Int = 0
+
     private var selectedNavGraphId: Int = 0
 
-    private var navController: NavController? = null
+    private var lastRetainedBackStackEntry: String? = null
 
-    private var primaryFragmentId: Int = 0
+    private var navController: NavController? = null
 
     fun create(selectedNavId: Int) {
         selectedNavGraphId = selectedNavId
@@ -48,11 +51,10 @@ class MultiNavHost(
             graphIdToTagMap[graphId] = fragmentTag
 
             if (primaryFragmentId == graphId) {
-                swapBackStackEntry(
-                    fragmentTag = graphIdToTagMap[selectedNavGraphId],
-                    navHostFragment = navHostFragment
-                )
+                attachNavHostFragment(navHostFragment)
                 navController = navHostFragment.navController
+            } else {
+                detachNavHostFragment(navHostFragment)
             }
         }
     }
@@ -88,15 +90,6 @@ class MultiNavHost(
         navController.popBackStack(navController.graph.startDestination, false)
     }
 
-    private fun isPrimaryFragmentInBackStack(): Boolean =
-        fragmentManager.isOnBackStack(graphIdToTagMap[primaryFragmentId])
-
-    private fun isOnPrimaryFragment(): Boolean = selectedNavGraphId == primaryFragmentId
-
-    private fun selectedFragmentTag(): String = graphIdToTagMap[selectedNavGraphId]
-
-    private fun primaryFragmentTag(): String = graphIdToTagMap[selectedNavGraphId]
-
     fun observeBackStack(onStackChange: (Int) -> Unit) {
         fragmentManager.addOnBackStackChangedListener {
             navController?.let { navController ->
@@ -106,7 +99,18 @@ class MultiNavHost(
                     navController.navigate(navController.graph.id)
                 } else {
                     val newBackStackId = fragmentManager.currentBackStackId()
-                    if (newBackStackId != null) onStackChange(newBackStackId)
+
+                    when (multiNavHostBackStackPolicy) {
+                        MultiNavHostBackStackPolicy.NO_BACK_STACK -> Unit
+                        MultiNavHostBackStackPolicy.PRIMARY_BACK_STACK -> {
+                            if (newBackStackId == null) onStackChange(primaryFragmentId)
+                        }
+                        MultiNavHostBackStackPolicy.MULTIPLE_BACK_STACK -> {
+                            validateStackAndReset()
+                            if (newBackStackId != null) onStackChange(newBackStackId)
+                            else onStackChange(primaryFragmentId)
+                        }
+                    }
                 }
             }
         }
@@ -133,6 +137,10 @@ class MultiNavHost(
         fragmentTag: String,
         navHostFragment: NavHostFragment
     ) {
+        if (navHostFragment.isDetached) attachNavHostFragment(navHostFragment)
+
+        val backStackTag: String? = createAndValidateBackStackTag(fragmentTag)
+
         fragmentManager.beginTransaction()
             .setCustomAnimations(
                 mNavAnimations.enterAnimation,
@@ -144,11 +152,8 @@ class MultiNavHost(
             .setPrimaryNavigationFragment(navHostFragment)
             .replace(containerId, navHostFragment, fragmentTag)
             .apply {
-                if (isSingleTopReplacement) {
-                    addToBackStack(fragmentTag)
-                } else {
-                    addToBackStack(fragmentTag)
-                }
+                if (backStackTag == null) disallowAddToBackStack()
+                else addToBackStack(backStackTag)
             }
             .commitAllowingStateLoss()
     }
@@ -184,6 +189,50 @@ class MultiNavHost(
         }
     }
 
+    private fun detachNavHostFragment(navHostFragment: NavHostFragment) {
+        fragmentManager.beginTransaction()
+            .detach(navHostFragment)
+            .commitNow()
+    }
+
+    private fun attachNavHostFragment(navHostFragment: NavHostFragment) {
+        fragmentManager.beginTransaction()
+            .attach(navHostFragment)
+            .setPrimaryNavigationFragment(navHostFragment)
+            .commitNow()
+    }
+
+    private fun createAndValidateBackStackTag(fragmentTag: String): String? {
+        return when (multiNavHostBackStackPolicy) {
+            MultiNavHostBackStackPolicy.NO_BACK_STACK -> null
+            MultiNavHostBackStackPolicy.PRIMARY_BACK_STACK -> {
+                val primaryBackStackTag = generateBackStackName(
+                    backStackIndex = 0,
+                    fragmentTag = graphIdToTagMap[primaryFragmentId]
+                )
+                fragmentManager.popBackStack(
+                    primaryBackStackTag,
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE
+                )
+                primaryBackStackTag
+            }
+            MultiNavHostBackStackPolicy.MULTIPLE_BACK_STACK -> {
+                val backStackCount = fragmentManager.backStackEntryCount
+                if (backStackCount > multipleBackStackCount) {
+                    val lastRetainedBackStackCount = backStackCount + 1 - multipleBackStackCount
+                    lastRetainedBackStackEntry = generateBackStackName(
+                        backStackIndex = lastRetainedBackStackCount,
+                        fragmentTag = fragmentTag
+                    )
+                }
+                generateBackStackName(
+                    backStackIndex = backStackCount + 1,
+                    fragmentTag = fragmentTag
+                )
+            }
+        }
+    }
+
     private fun FragmentManager.isOnBackStack(backStackName: String): Boolean {
         val backStackCount = backStackEntryCount
         for (index in 0 until backStackCount) {
@@ -193,10 +242,33 @@ class MultiNavHost(
     }
 
     private fun FragmentManager.currentBackStackId(): Int? {
+        return currentBackStackEntry()?.toFragmentTag()?.let { name ->
+            graphIdToTagMap.getKeyAt(name)
+        }
+    }
+
+    private fun FragmentManager.currentBackStackEntry(): FragmentManager.BackStackEntry? {
         return if (backStackEntryCount > 0) {
-            val backStackName = getBackStackEntryAt(backStackEntryCount - 1).name
-            graphIdToTagMap.getKeyAt(backStackName ?: return null)
+            getBackStackEntryAt(backStackEntryCount - 1)
         } else null
+    }
+
+    private fun validateStackAndReset() {
+        val currentBackStackEntry = fragmentManager.currentBackStackEntry()?.name ?: return
+        if (isLastRetainedBackEntry(currentBackStackEntry)) {
+            fragmentManager.popBackStack(
+                graphIdToTagMap[primaryFragmentId],
+                FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+        }
+    }
+
+    private fun FragmentManager.BackStackEntry?.toFragmentTag(): String? {
+        return this?.name?.split("-")?.getOrNull(1)
+    }
+
+    private fun isLastRetainedBackEntry(currentBackStackEntryTag: String): Boolean {
+        return lastRetainedBackStackEntry != null && lastRetainedBackStackEntry == currentBackStackEntryTag
     }
 
     private fun <T> SparseArray<T>.getKeyAt(value: T): Int? {
@@ -207,4 +279,13 @@ class MultiNavHost(
     @Suppress("HardCodedStringLiteral")
     private fun getFragmentTag(index: Int) = "multiNavHost#$index"
 
+    private fun generateBackStackName(backStackIndex: Int, fragmentTag: String): String {
+        return "$backStackIndex-$fragmentTag"
+    }
+
+    enum class MultiNavHostBackStackPolicy {
+        NO_BACK_STACK,
+        PRIMARY_BACK_STACK,
+        MULTIPLE_BACK_STACK
+    }
 }
